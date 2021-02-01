@@ -1,0 +1,11 @@
+commit e37caa6ce558dd09b88be5786b9a9e978a8b6117
+Author: ”Sergey <GoodVine1971@gmail.com>
+Date:   Mon Feb 1 21:01:19 2021 +0300
+
+    add status.txt
+
+commit 6b3eb7eb5ce55b8cf64ae18f21ac86a8e8992b57
+Author: ”Sergey <GoodVine1971@gmail.com>
+Date:   Mon Feb 1 20:44:12 2021 +0300
+
+    add .gitignore
