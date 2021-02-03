@@ -6,6 +6,10 @@ services:
   ports:
     - '8080:80'
  
+    app:
+    
+     depends_on: db
+ 
     db:
     image: mariadb
     restart: always
