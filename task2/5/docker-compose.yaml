@@ -1,0 +1,15 @@
+task2-5:
+version: "3"
+services:
+    nginx_srv:
+  image: goodvine/websrv:v1
+  ports:
+    - '8080:80'
+ 
+    db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+     
+     
