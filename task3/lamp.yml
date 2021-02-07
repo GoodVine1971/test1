@@ -9,8 +9,6 @@
   - mysql_root_password: "RootPass"
   - http_host: "test.loc"
   - http_conf: "test.loc.conf"
-#  vars_files:
-#  - vars/mysqldef.yml
   tasks:
   - name: Install Apache, MySQL, PHP.
     apt: name={{ item }} update_cache=yes state=latest
@@ -42,7 +40,7 @@
     template:
         src: "files/test.php"
 #        dest: "/var/www/html/test.php"   
-        dest: "/var/www/{{ http_host }}/test.php"  
+        dest: "/var/www/{{ http_host }}/index.php"  
   - name: Start Apache, MySQL, PHP
     service: name={{ item }} state=started enabled=yes
     loop: ['apache2', 'mysql']
