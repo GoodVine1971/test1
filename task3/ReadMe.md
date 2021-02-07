@@ -110,7 +110,7 @@ sudo apt install ansible - последняя
 	- http_conf: "test.loc.conf" - файл конфигурации хоста
 	
 	* Устанавливаемые пакеты:
-	'apache2', 'mysql-server', 'php', 'php-mysql', 'libapache2-mod-php' 'python3-pymysql' , последний для подключения python к MySQL при изменении пароля
+	'apache2', 'mysql-server', 'php', 'php-mysql', 'python3-pymysql' , последний для подключения python к MySQL при изменении пароля
 
 	* создаем папку хоста apache в /var/www/
 	можно поменять пользователя и группу на www-data и выставить permissions  755, хотя работает и без смены пользователя
