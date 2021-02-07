@@ -1,0 +1,56 @@
+---
+# Playbook install LAMP от Ubuntu 20.04
+- hosts: client1
+  become:
+    true
+  become_method:
+    sudo
+  vars:
+  - mysql_root_password: "RootPass"
+  - http_host: "test.loc"
+  - http_conf: "test.loc.conf"
+#  vars_files:
+#  - vars/mysqldef.yml
+  tasks:
+  - name: Install Apache, MySQL, PHP.
+    apt: name={{ item }} update_cache=yes state=latest
+    loop: [ 'apache2', 'mysql-server', 'php', 'php-mysql', 'libapache2-mod-php', 'python3-pymysql' ]
+  - name: Apache confiration
+    file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "www-data"
+        group: "www-data"
+        mode: '0755'  
+  - name: Copy VirtualHost
+    template:
+        src: "files/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+  - name: Check that the somefile.conf exists
+    stat:
+        path: /etc/apache2/sites-available/000-default.conf
+    register: conf
+    
+  - name: Disable default Apache site
+    shell: /usr/sbin/a2dissite 000-default.conf
+    when: conf.stat.exists
+    notify: restart apache
+  - name: Enable site
+    shell: "/usr/sbin/a2ensite {{ http_conf }}"
+    notify: restart apache
+  - name: Move test.php
+    template:
+        src: "files/test.php"
+#        dest: "/var/www/html/test.php"   
+        dest: "/var/www/{{ http_host }}/test.php"  
+  - name: Start Apache, MySQL, PHP
+    service: name={{ item }} state=started enabled=yes
+    loop: ['apache2', 'mysql']
+  - name: Sets MySQL root password
+    mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+  handlers:
+  - name: restart apache
+    service: name=apache2 state=restarted

@@ -1,0 +1,9 @@
+---
+- hosts: client1
+  become:
+    true
+  become_method:
+    sudo
+  tasks:
+    - name: Installs nginx
+      apt: pkg=nginx
