@@ -143,4 +143,4 @@ sudo apt install ansible - последняя
 	
 	##### Проверяем результат выполнения playbook 
 	
-![Результат выполнения:](nginx-status.jpg)  
+![Результат выполнения:](test_php.jpg)  
