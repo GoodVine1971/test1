@@ -63,9 +63,9 @@ sudo apt install ansible - последняя
 	
 	Проверяем подключение: 
 	
-	>	ansible all -m ping   # здесь не указывается пользователь, т.к. я его указал явно в hosts
+	>	ansible all -m ping   # здесь не указывается пользователь, т.к. я его указал явно в hosts  
 	
-	![Результат выполнения:](ping-pong.jpg)
+![Результат выполнения:](ping-pong.jpg)
 	
 	Можно вместо ping узнать использование дискового пространства:  
 	
@@ -99,7 +99,7 @@ sudo apt install ansible - последняя
 	##### Проверяем результат выполнения playbook 
 	>	ansible ubuntu -a 'systemctl status nginx.service'
 	
-	![Результат выполнения:](nginx-status.jpg)  
+![Результат выполнения:](nginx-status.jpg)  
 	
 ### 4.  Плейбук по установке LAMP
 
@@ -143,4 +143,4 @@ sudo apt install ansible - последняя
 	
 	##### Проверяем результат выполнения playbook 
 	
-	![Результат выполнения:](nginx-status.jpg)  
+![Результат выполнения:](nginx-status.jpg)  
