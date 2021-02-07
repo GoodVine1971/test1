@@ -12,7 +12,7 @@
   tasks:
   - name: Install Apache, MySQL, PHP.
     apt: name={{ item }} update_cache=yes state=latest
-    loop: [ 'apache2', 'mysql-server', 'php', 'php-mysql', 'libapache2-mod-php', 'python3-pymysql' ]
+    loop: [ 'apache2', 'mysql-server', 'php', 'php-mysql', 'python3-pymysql' ]
   - name: Apache confiration
     file:
         path: "/var/www/{{ http_host }}"
