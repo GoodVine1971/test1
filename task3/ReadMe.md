@@ -106,6 +106,9 @@ sudo apt install ansible - последняя
 	* Используемые переменные:
 	создаем шифрованный пароль к базе MySQL:
 	> ansible-vault encrypt_string RootPass
+		New Vault password: xxx
+		Confirm New Vault password: xxx
+
 	
 	- mysql_root_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -152,6 +155,6 @@ sudo apt install ansible - последняя
 	
 	##### Проверяем результат выполнения playbook 
 	
-	при запуске используем --ask-vault-pass
+	при запуске используем --ask-vault-pass  и вводим пароль, который использовался при шифровании  xxx
 	
 ![Результат выполнения:](test_php.jpg)  
