@@ -119,3 +119,8 @@ pipeline {
  А в файлике pass.txt он уже в открытом виде
 
  ![Результат выполнения:](pass_in_file.jpg)
+ 
+ Если использовать Pipeline, то в коде будет
+ >	steps { withCredentials([string(credentialsId: '1', variable: 'PASSWORD')]) {
+                sh 'docker run  -e PASSWORD="$PASSWORD" --tty goodvine/websrv'
+            }
