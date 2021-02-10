@@ -49,7 +49,7 @@ docker start jenkins-dock
 Заходим в Nodes, создаем новый узел Host
 включаем верификацию по ключу
 
-(Host.jpg)  
+![Как-то так:](Host.jpg)  
 
 ##  Freestyle project ## 
 
