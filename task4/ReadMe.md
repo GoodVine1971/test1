@@ -57,7 +57,58 @@ docker start jenkins-dock
 
 В shell:
 
-time_now=$(date  +%Y-%m-%d\ %H:%M:%S)
-echo $time_now
+>	time_now=$(date  +%Y-%m-%d\ %H:%M:%S)
+>	echo $time_now
 
 ![Результат выполнения:](time.jpg)  
+
+##  Pipeline который будет на хосте выполнять команду docker ps -a ## 
+
+Создаю Pipeline Docker_ps со скриптом
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Display') {
+            steps {
+                sh 'docker ps -a'
+                
+                
+            }
+        }
+    }
+}
+
+![Результат выполнения:](docke_ps.jpg)  
+
+
+##  Pipeline собирает докер образ из вашего Dockerfile на GitHub  ##
+
+Создаю Pipeline Git_docker со скриптом
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Display') {
+            steps {
+                
+                sh 'docker build -t git_build_dock https://github.com/GoodVine1971/test1.git#master:task2'
+             }
+        }
+    }
+}
+
+![Результат выполнения:](git_dock.jpg)  
+
+
+##  Передать переменную PASSWORD=QWERTY  ##
+
+
+Использую Freestyle : pass-to
+
+В ном создаю переменную PASSWORD  как secret text
+
+![Вот так :](password_create.jpg) 
+ 
