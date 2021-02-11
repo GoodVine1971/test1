@@ -29,6 +29,7 @@ docker start jenkins-dock
 
 ##  Настройка  билд агента  для подключения к хосту ## 
 
+Установить Java 8 на хост
  
 Заходим под root в контейнер jenkins
 >	docker exec -it --user root jenkins-dock  /bin/bash  
@@ -118,9 +119,12 @@ pipeline {
  
  А в файлике pass.txt он уже в открытом виде
 
- ![Результат выполнения:](pass_in_file.jpg)
+ ![Результат выполнения printf $PASSWORD > pass.txt :](pass_in_file.jpg)
  
  Если использовать Pipeline, то в коде будет
  >	steps { withCredentials([string(credentialsId: '1', variable: 'PASSWORD')]) {
                 sh 'docker run  -e PASSWORD="$PASSWORD" --tty goodvine/websrv'
             }
+			
+	Здесь параметр -it заменен на --tty из-за ошибки "the input device is not a TTY"
+	Или попробовать без interactive, т.е.:   -t
