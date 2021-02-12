@@ -1,0 +1,24 @@
+#  Выполнение задания Task5 (Databases)  #  
+  
+sudo mkdir /opt/mysql
+sudo cd /opt/mysql
+sudo mkdir mysql_db
+sudo nano docker-compose.yaml
+
+version: '3.5'
+services:
+  db:
+    image: mysql:5.7
+	container_name: "mysql_5.7"
+#    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: exadel
+	  MYSQL_USER: stud
+      MYSQL_PASSWORD: studpass
+    ports:
+      - "3306:3306"
+    volumes:
+	  - /opt/mysql/mysql_db:/var/lib/mysql
+      
+	  
