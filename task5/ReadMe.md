@@ -146,7 +146,8 @@ mysql -uroot -prootpass
 	```sh
 	mysql -uroot -p exadel < /var/lib/mysql-files/base.sql
 	```
-	![Выполнение :](insert_from_sql.jpg)  
+	
+![Выполнение:](insert_from_sql.jpg)  
 	
 	
 ##  4  Написать запрос который по вашей фамилии будет находить информацию   ##
