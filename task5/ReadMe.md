@@ -387,7 +387,7 @@ Mongo3 будет арбитром
 Проверка статуса:
 > rs.status()
 
-Добавим обять базу и коллекцию:
+Добавим базу и коллекцию:
 
 > use exadel
 > db.createCollection("Students")  
