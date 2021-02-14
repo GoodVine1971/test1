@@ -1,0 +1,44 @@
+version: '3.5'
+services:
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - 27017:27017
+    network_mode: "mongo"
+    restart: unless-stopped
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - /opt/mongodb/database:/data/db
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - 27018:27017
+    network_mode: "mongo"
+    restart: unless-stopped
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - /opt/mongodb/database2:/data/db
+  mongo3:
+    hostname: mongo3
+    container_name: mongo3
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - 27019:27017
+    network_mode: "mongo"
+    restart: unless-stopped
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - /opt/mongodb/database3:/data/db

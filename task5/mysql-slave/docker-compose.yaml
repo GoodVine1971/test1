@@ -1,0 +1,17 @@
+version: '3.5'
+services:
+  db:
+    image: mysql:5.7
+    container_name: "mysql_slave"
+    restart: always
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-c>
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: exadel
+      MYSQL_USER: stud
+      MYSQL_PASSWORD: studpass
+    network_mode: "bridge"
+    ports:
+      - "3307:3306"
+    volumes:
+      - /opt/mysql-slave/mysql_db:/var/lib/mysql

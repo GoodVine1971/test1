@@ -1,0 +1,19 @@
+id;StudentId;task1;task2;task3;task4
+1;1;pass;pass;pass;pass
+2;2;pass;pass;pass; 
+3;3;pass;pass;pass;pass
+4;4;pass;pass;not passed; 
+5;5;pass;pass;not passed; 
+6;6;pass;pass;not passed; 
+7;7;pass;not passed;not passed; 
+8;8;pass;pass;pass;pass
+9;9;pass;not passed;not passed; 
+10;10;pass;pass;pass;pass
+11;11;pass;pass;pass;pass
+12;12;pass;pass;pass;pass
+13;13;pass;not passed;not passed; 
+14;14;pass;pass;pass;pass
+16;16;pass;not passed;not passed; 
+17;17;pass;pass;pass; 
+18;18;pass;pass;pass;pass
+19;19;pass;pass;pass;pass
