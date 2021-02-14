@@ -138,9 +138,11 @@ mysql -uroot -prootpass
 
 2.    3*  SQL скрипт.  
 
+	\mysql\files\base.sql
 	Удаляем таблицы из базы 
 	> DROP TABLE Students;
-	> DROP TABLE Result;
+	> DROP TABLE Result; 
+
 	
 	Импорт из sql файла bash:
 	```sh
@@ -206,13 +208,13 @@ ports:
 Поэтому добавляем строку:  network_mode: "bridge"
 	  
 	На главном сервере отредактируем файл файл my.cnf, в секцию [mysqld] добавить строки:
-	# выбираем ID сервера, произвольное число, лучше начинать с 1
+	##### выбираем ID сервера, произвольное число, лучше начинать с 1
 	server-id = 1
 
-	# путь к бинарному логу
+	##### путь к бинарному логу
 	log_bin = /var/log/mysql/mysql-bin.log
 
-	# название реплицируемой базы данных
+	##### название реплицируемой базы данных
 	binlog_do_db = exadel
 
 перезапускаем: service mysql restart
@@ -226,25 +228,27 @@ ports:
 
 > SHOW MASTER STATUS;
 
+![Статус master:](master.jpg) 
+
 Ок, работает
 
 На Slave сервере отредактируем файл файл my.cnf, в секцию [mysqld] добавить строки:
 
-# ID Слейва, удобно выбирать следующим числом после Мастера
+##### ID Слейва, удобно выбирать следующим числом после Мастера
 server-id = 2
 
-# Путь к relay логу
+##### Путь к relay логу
 relay-log = /var/log/mysql/mysql-relay-bin.log
 
-# Путь к bin логу на Мастере
+##### Путь к bin логу на Мастере
 log_bin = /var/log/mysql/mysql-bin.log
 
-# База данных для репликации
+##### База данных для репликации
 binlog_do_db = exadel
 
 После перезагрузки в консоли mysql выполняем:
 
-> CHANGE MASTER TO MASTER_HOST='mysql_5.7', MASTER_PORT=3306, MASTER_USER='replicator', MASTER_PASSWORD='pass';  
+> CHANGE MASTER TO MASTER_HOST='172.17.0.2', MASTER_PORT=3306, MASTER_USER='replicator', MASTER_PASSWORD='pass';
 > SHOW SLAVE STATUS\G;
 
 ![Статус репликации:](replicat.jpg)  
