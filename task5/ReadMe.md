@@ -701,6 +701,7 @@ pipeline {
     }
 }  
   
- где в  cluster_mysql.yaml описаны роли для cluster-master и cluster-slave
+ где в  cluster_mysql.yaml описаны роли для cluster-master и cluster-slave 
+ Запуск через master node (билд агент)
 
  
