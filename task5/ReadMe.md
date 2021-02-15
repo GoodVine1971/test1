@@ -154,7 +154,7 @@ mysql -uroot -p exadel < /var/lib/mysql-files/base.sql
 	
 ##  4  Написать запрос который по вашей фамилии будет находить информацию   ##
 
-В консоли mysql не вводятся русские буквы
+В консоли mysql не вводятся буквы на русской раскладке
 
 Посмотрел character_set, заменил на utf8. 
 
@@ -248,7 +248,7 @@ binlog_do_db = exadel
 
 После перезагрузки в консоли mysql выполняем:
 
-> CHANGE MASTER TO MASTER_HOST='172.17.0.2', MASTER_PORT=3306, MASTER_USER='replicator', MASTER_PASSWORD='pass';
+> CHANGE MASTER TO MASTER_HOST='172.17.0.3', MASTER_PORT=3306, MASTER_USER='replicator', MASTER_PASSWORD='pass';
 > SHOW SLAVE STATUS\G;
 
 ![Статус репликации:](replicat.jpg)  
@@ -409,3 +409,298 @@ Mongo3 будет арбитром
 ```sh
 echo $USERNAME - выводим в bash
 ```
+
+
+##  9  Написать Ansible роль для создания SQL кластера   ##
+
+В качестве кластера возьмем  MySQL Cluster 8.0.23 
+https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-installation.html
+
+на каждой машине создадим пользователя mysql и группу mysql
+
+```sh
+useradd -m -s /bin/bash mysql
+passwd mysql
+usermod -aG mysql mysql 
+usermod -aG sudo mysql  
+```
+
+Будем использовать 3 сервера: 2 с данными (Data node "A" (ndbd) и Data node "B" (ndbd)) и еще один объединит диспетчер кластера и клиент MySQL (Management node (mgmd) и SQL node (mysqld))
+Пусть Ip-адреса будут следующие:
+192.168.0.10 Data node "A" (ndbd)
+192.168.0.20 Data node "B" (ndbd)
+192.168.0.1 Management node (mgmd) и SQL node (mysqld)
+
+Ansible установлен на 192.168.0.1 (в task3)
+
+Добавляем ssh ключи на обе машины из кластера:
+ssh-copy-id mysql@192.168.0.10
+ssh-copy-id mysql@192.168.0.20
+
+Настраиваем /etc/ansible/hosts 
+
+[mysql_cluster_data]
+ndb0 ansible_host=mysql@192.168.0.10
+ndb1 ansible_host=mysql@192.168.0.20
+[mysql_cluster_sql]
+ndb0 ansible_host=mysql@192.168.0.1
+[mysql_cluster_mgmd]
+ndb-mgmd ansible_host=mysql@192.168.0.1
+
+Бинарники для кластера https://dev.mysql.com/downloads/cluster/
+Для скачивания создаем аккаунт в Oracle
+
+Создаем playbook:
+>	/etc/ansible/palybooks/mysql_cluster.yml
+
+- hosts: mysql_cluster_mgmd
+  become: true
+  become_method:
+    sudo
+  roles:
+  - mysql-cluster-mgmd
+
+- hosts: mysql_cluster_data
+  become: true
+  become_method:
+    sudo
+  roles:
+  - mysql-cluster-data
+
+- hosts: mysql_cluster_sql
+  become: true
+  become_method:
+    sudo
+  roles:
+  - mysql-cluster-sql
+
+Создадим роли в папке /etc/ansible/palybooks/roles
+1. Роль mysql_cluster_mgmd
+Папка mysql_cluster_mgmd файл main.yaml
+
+- name: Download deb
+  get_url: 
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
+	dest: /home/goodvine
+
+- name: install deb
+  command: dpkg -i /home/goodvine/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
+ # The .deb file for NDB 8.0 installs NDB Cluster under /opt/mysql/5.7/
+
+- name: create cluster directory
+  file:
+    path: /var/lib/mysql-cluster
+    state: directory
+
+- name: Copy cluster config
+  template: 
+    src: config.ini
+    dest: /var/lib/mysql-cluster/config.ini
+
+			где  config.ini файл в подпапке templates
+
+			[ndbd default]
+			# Options affecting ndbd processes on all data nodes:
+			NoOfReplicas=2    # Number of fragment replicas
+			DataMemory=98M    # How much memory to allocate for data storage
+
+			[ndb_mgmd]
+			# Management process options:
+			HostName=192.168.0.1          # Hostname or IP address of management node
+			DataDir=/var/lib/mysql-cluster  # Directory for management node log files
+
+			[ndbd]
+			# Options for data node "A":
+											# (one [ndbd] section per data node)
+			HostName=192.168.0.10          # Hostname or IP address
+			NodeId=2                        # Node ID for this data node
+			DataDir=/usr/local/mysql/data   # Directory for this data node's data files
+
+			[ndbd]
+			# Options for data node "B":
+			HostName=192.168.0.20          # Hostname or IP address
+			NodeId=3                        # Node ID for this data node
+			DataDir=/usr/local/mysql/data   # Directory for this data node's data files
+
+			[mysqld]
+			# SQL node options:
+			HostName=192.168.0.1          # Hostname or IP address
+											# (additional mysqld connections can be
+											# specified for this node for various
+											# purposes such as running ndb_restore)
+
+- name: start first time
+  shell: ndb_mgmd -f /var/lib/mysql-cluster/config.ini
+__________________________________
+
+2. Роль mysql_cluster_sql	
+	Папка mysql_cluster_sql файл main.yaml
+	
+  
+- name: Download serv 
+  command: wget --continue -P /var/tmp http://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz  
+
+- name: Extract tar
+  command: tar -C /usr/local -xzvf mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz
+  
+- name: Link directory to short name mysql
+  command: ln -s /usr/local/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64 /usr/local/mysql 
+
+- name: Change location to the mysql directory
+  shell: cd mysql
+
+- name: set up the system databases 
+  command: ./scripts/mysql_install_db --user=mysql chdir=/usr/local/mysql/ creates=/usr/local/mysql/data/mysql/user.frm  
+	
+- name: Set the necessary permissions for the MySQL server and data 
+  shell: chown -R mysql /usr/local/mysql/data && chgrp -R mysql /usr/local/mysql/
+
+- name: Install init file
+  command: cp support-files/mysql.server /etc/rc.d/init.d/
+- name: Set permissions  
+  command: chmod +x /etc/rc.d/init.d/mysql.server
+- name: Set chkconfig 
+  command: chkconfig --add mysql.server  
+  
+- name: Install my.cnf 
+  template: src=my.cnf dest=/etc/my.cnf
+  
+ где  my.cnf  файл в подпапке templates 
+ 
+[mysqld]
+# Options for mysqld process:
+ndbcluster                      # run NDB storage engine
+
+[mysql_cluster]
+# Options for NDB Cluster processes:
+ndb-connectstring=198.51.100.10  # location of management server
+ 
+Вот на этом месте я выяснил, что надо было не кластер на нодах поднимать, а использовать репликацию, сделанную выше.
+__________________________________
+
+##  9  Написать Ansible роль для создания SQL кластера  (попытка номер 2) ##
+
+Сначала задачу усложнил, значит теперь упрощаю. За отсутствием времени выполнено теоретически.
+
+Итак, при условии, что контейнеры уже установлены и запущены:
+
+Настраиваем /etc/ansible/hosts 
+
+[cluster-master]  
+        master ansible_host=172.17.0.3 
+[cluster-slave] 		
+        slave ansible_host=172.17.0.2
+		
+Подготавливаем 2 файла my.cnf, первый для master: 
+
+			includedir /etc/mysql/conf.d/
+			!includedir /etc/mysql/mysql.conf.d/
+
+			[client]
+			default-character-set = utf8
+			[mysqld]
+			server-id = 1
+			log_bin = /var/log/mysql/mysql-bin.log
+			binlog_do_db = exadel
+
+			character-set-server=utf8
+			collation-server=utf8_general_ci
+			init-connect="SET NAMES utf8"
+			skip-character-set-client-handshake
+			[mysql]
+			default-character-set = utf8
+			[mysqldump]
+			default-character-set = utf8	
+			
+Второй для slave
+
+			!includedir /etc/mysql/conf.d/
+			!includedir /etc/mysql/mysql.conf.d/
+
+			[client]
+			default-character-set = utf8
+			[mysqld]
+			server-id = 2
+			relay-log = /var/log/mysql/mysql-relay-bin.log
+			log_bin = /var/log/mysql/mysql-bin.log
+			binlog_do_db = exadel
+
+			character-set-server=utf8
+			collation-server=utf8_general_ci
+			init-connect="SET NAMES utf8"
+			skip-character-set-client-handshake
+			[mysql]
+			default-character-set = utf8
+			[mysqldump]
+			default-character-set = utf8
+			
+
+Пишем роль для cluster-master:
+
+			- name: Install config
+			  template: src=my.cnf dest=/etc/my.cnf
+			  notify: restart mysql
+
+			- name: Insert user replicator
+			  command: mysql -uroot -p${MYSQL_ROOT_PASSWORD}  -e  " GRANT REPLICATION SLAVE ON *.* TO 'replicator'@'%' IDENTIFIED BY 'pass'; FLUSH PRIVILEGES;"
+
+			  handlers:
+			  - name: restart mysql
+				  service: name=mysql
+						   enabled=yes
+						   state=restarted
+
+Пишем роль для cluster-slave:
+
+			- name: Install config
+			  template: src=my.cnf dest=/etc/my.cnf
+			  notify: restart mysql
+
+			- name: Insert user replicator
+			  command: mysql -uroot -p${MYSQL_ROOT_PASSWORD}  -e  " CHANGE MASTER TO MASTER_HOST='172.17.0.3', MASTER_PORT=3306, MASTER_USER='replicator', MASTER_PASSWORD='pass';"
+
+			  handlers:
+			  - name: restart mysql
+				  service: name=mysql
+						   enabled=yes
+						   state=restarted
+  
+  
+##  10  Написать Ansible роль для создания NoSQL кластера  ##  
+
+Допущение: 3 контейнера с MongoDB запущены как выполнялось выше.
+Иначе необходимо добавть роль Install_Mongo_Docker, в которой нужно установить сеть, запустить контейнеры из docker-compose
+
+[mongodb_serv]
+
+			- name: Initiate replicaSet
+			  command: mongo --eval 'rs.initiate()'
+			- name: Ждем 30 сек
+			  command: sleep 30  
+			-name: It is master
+			  command: mongo --eval 'db.isMaster()'
+			-name: It is slave
+			  command: mongo --eval 'rs.add("mongo2:27017")'
+			-name: It is arbitr
+			  command: mongo --eval 'rs.add("mongo3:27017", {arbiterOnly: true})'
+
+
+##  11  ННаписать Groovy Pipeline для Jenkins который будет запускать ансибл плейбуки для SQL/NoSQL  ##  
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Display') {
+            steps {
+                sh 'ansible-playbook  /opt/mysql/ansible/cluster_mysql.yaml'
+				
+            }
+        }
+    }
+}  
+  
+ где в  cluster_mysql.yaml описаны роли для cluster-master и cluster-slave
+
+ 
