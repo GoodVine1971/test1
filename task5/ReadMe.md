@@ -139,15 +139,15 @@ mysql -uroot -prootpass
 2.    3*  SQL скрипт.  
 
 	\mysql\files\base.sql
-	Удаляем таблицы из базы 
+	Удаляем таблицы из базы  
+	
 	> DROP TABLE Students;
 	> DROP TABLE Result; 
-
 	
-	Импорт из sql файла bash:
-	```sh
-	mysql -uroot -p exadel < /var/lib/mysql-files/base.sql
-	```
+Импорт из sql файла bash:
+```sh
+mysql -uroot -p exadel < /var/lib/mysql-files/base.sql
+```
 	
 ![Выполнение:](insert_from_sql.jpg)  
 	
