@@ -478,101 +478,101 @@ ndb-mgmd ansible_host=mysql@192.168.0.1
 1. Роль mysql_cluster_mgmd
 Папка mysql_cluster_mgmd файл main.yaml
 
-- name: Download deb
-  get_url: 
-    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
-	dest: /home/goodvine
+		- name: Download deb
+		  get_url: 
+			url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
+			dest: /home/goodvine
 
-- name: install deb
-  command: dpkg -i /home/goodvine/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
- # The .deb file for NDB 8.0 installs NDB Cluster under /opt/mysql/5.7/
+		- name: install deb
+		  command: dpkg -i /home/goodvine/mysql-cluster-community-management-server_8.0.23-1ubuntu20.04_amd64.deb
+		 # The .deb file for NDB 8.0 installs NDB Cluster under /opt/mysql/5.7/
 
-- name: create cluster directory
-  file:
-    path: /var/lib/mysql-cluster
-    state: directory
+		- name: create cluster directory
+		  file:
+			path: /var/lib/mysql-cluster
+			state: directory
 
-- name: Copy cluster config
-  template: 
-    src: config.ini
-    dest: /var/lib/mysql-cluster/config.ini
+		- name: Copy cluster config
+		  template: 
+			src: config.ini
+			dest: /var/lib/mysql-cluster/config.ini
 
 			где  config.ini файл в подпапке templates
 
 			[ndbd default]
-			# Options affecting ndbd processes on all data nodes:
+			##### Options affecting ndbd processes on all data nodes:
 			NoOfReplicas=2    # Number of fragment replicas
 			DataMemory=98M    # How much memory to allocate for data storage
 
 			[ndb_mgmd]
-			# Management process options:
+			##### Management process options:
 			HostName=192.168.0.1          # Hostname or IP address of management node
 			DataDir=/var/lib/mysql-cluster  # Directory for management node log files
 
 			[ndbd]
-			# Options for data node "A":
+			##### Options for data node "A":
 											# (one [ndbd] section per data node)
 			HostName=192.168.0.10          # Hostname or IP address
 			NodeId=2                        # Node ID for this data node
 			DataDir=/usr/local/mysql/data   # Directory for this data node's data files
 
 			[ndbd]
-			# Options for data node "B":
+			##### Options for data node "B":
 			HostName=192.168.0.20          # Hostname or IP address
 			NodeId=3                        # Node ID for this data node
 			DataDir=/usr/local/mysql/data   # Directory for this data node's data files
 
 			[mysqld]
-			# SQL node options:
+			##### SQL node options:
 			HostName=192.168.0.1          # Hostname or IP address
 											# (additional mysqld connections can be
 											# specified for this node for various
 											# purposes such as running ndb_restore)
 
-- name: start first time
-  shell: ndb_mgmd -f /var/lib/mysql-cluster/config.ini
+		- name: start first time
+		  shell: ndb_mgmd -f /var/lib/mysql-cluster/config.ini
 __________________________________
 
 2. Роль mysql_cluster_sql	
 	Папка mysql_cluster_sql файл main.yaml
 	
   
-- name: Download serv 
-  command: wget --continue -P /var/tmp http://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz  
+		- name: Download serv 
+		  command: wget --continue -P /var/tmp http://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz  
 
-- name: Extract tar
-  command: tar -C /usr/local -xzvf mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz
-  
-- name: Link directory to short name mysql
-  command: ln -s /usr/local/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64 /usr/local/mysql 
+		- name: Extract tar
+		  command: tar -C /usr/local -xzvf mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64.tar.gz
+		  
+		- name: Link directory to short name mysql
+		  command: ln -s /usr/local/mysql-cluster-gpl-8.0.23-linux-glibc2.12-x86_64 /usr/local/mysql 
 
-- name: Change location to the mysql directory
-  shell: cd mysql
+		- name: Change location to the mysql directory
+		  shell: cd mysql
 
-- name: set up the system databases 
-  command: ./scripts/mysql_install_db --user=mysql chdir=/usr/local/mysql/ creates=/usr/local/mysql/data/mysql/user.frm  
-	
-- name: Set the necessary permissions for the MySQL server and data 
-  shell: chown -R mysql /usr/local/mysql/data && chgrp -R mysql /usr/local/mysql/
+		- name: set up the system databases 
+		  command: ./scripts/mysql_install_db --user=mysql chdir=/usr/local/mysql/ creates=/usr/local/mysql/data/mysql/user.frm  
+			
+		- name: Set the necessary permissions for the MySQL server and data 
+		  shell: chown -R mysql /usr/local/mysql/data && chgrp -R mysql /usr/local/mysql/
 
-- name: Install init file
-  command: cp support-files/mysql.server /etc/rc.d/init.d/
-- name: Set permissions  
-  command: chmod +x /etc/rc.d/init.d/mysql.server
-- name: Set chkconfig 
-  command: chkconfig --add mysql.server  
-  
-- name: Install my.cnf 
-  template: src=my.cnf dest=/etc/my.cnf
+		- name: Install init file
+		  command: cp support-files/mysql.server /etc/rc.d/init.d/
+		- name: Set permissions  
+		  command: chmod +x /etc/rc.d/init.d/mysql.server
+		- name: Set chkconfig 
+		  command: chkconfig --add mysql.server  
+		  
+		- name: Install my.cnf 
+		  template: src=my.cnf dest=/etc/my.cnf
   
  где  my.cnf  файл в подпапке templates 
  
 [mysqld]
-# Options for mysqld process:
+##### Options for mysqld process:
 ndbcluster                      # run NDB storage engine
 
 [mysql_cluster]
-# Options for NDB Cluster processes:
+##### Options for NDB Cluster processes:
 ndb-connectstring=198.51.100.10  # location of management server
  
 Вот на этом месте я выяснил, что надо было не кластер на нодах поднимать, а использовать репликацию, сделанную выше.
@@ -685,7 +685,7 @@ __________________________________
 			  command: mongo --eval 'rs.add("mongo3:27017", {arbiterOnly: true})'
 
 
-##  11  ННаписать Groovy Pipeline для Jenkins который будет запускать ансибл плейбуки для SQL/NoSQL  ##  
+##  11  Написать Groovy Pipeline для Jenkins который будет запускать ансибл плейбуки для SQL/NoSQL  ##  
 
 
 pipeline {
