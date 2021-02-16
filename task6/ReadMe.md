@@ -27,6 +27,7 @@ apt install mariadb-server zabbix-server-mysql zabbix-frontend-php zabbix-nginx-
 Добавим docker сеть для zabbix:
 ```sh
 docker network create zabbix
+docker network inspect zabbix 
 ```
 
 Создаем в /opt рабочую диресторию zabbix, папку mysql для проброса базы и и docker-compose.yaml:
@@ -36,9 +37,23 @@ mkdir -pv zabbix/mysql
 sudo nano docker-compose.yaml
 ```
 
+Установка в docker сопровождалась сложностями с настройкой сети и портов, т.к. в образах внутренние порты изменены.
+По-умолчанию 
+Логин: Admin  (именно сбольшой буквы)
+Пароль zabbix
+
+Установим агента
+
+docker run --name some-zabbix-agent -e ZBX_HOSTNAME="some-hostname" -e ZBX_SERVER_HOST="some-zabbix-server" -d zabbix/zabbix-agent:latest
+ПолучаемЖ
+docker run --name zabbix-agent -e ZBX_HOSTNAME="ZabbixServ" -e ZBX_SERVER_HOST="192.168.0.1" -d zabbix/zabbix-agent:latest
 
 
 
+docker run --name zabbix-server --link zabbix-agent:zabbix-agent2 -d zabbix/zabbix-server:latest
+
+
+docker run --name zabbix-server --link zabbix-agent:zabbix-agent -d zabbix/zabbix-server:latest
 
 
 ![Результат выполнения:](show_base.jpg)  

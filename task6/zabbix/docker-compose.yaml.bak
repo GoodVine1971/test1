@@ -1,9 +1,9 @@
 version: '3.5'
 
 services:
-  mysql-server:
+  zabbix-mysql:
     image: mysql:5.7
-    container_name: "mysql-server"
+    container_name: "zabbix-mysql"
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: zabbix
@@ -22,13 +22,13 @@ services:
       - --default-authentication-plugin=mysql_native_password
 
   zabbix-server:
-    image: zabbix/zabbix-server-mysql:alpine-latest
+    image: zabbix-server-mysql:ubuntu-5.2-latest
     container_name: "zabbix-server"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro 
     environment:
-      DB_SERVER_HOST: mysql-server
+      DB_SERVER_HOST: zabbix-mysql
       MYSQL_DATABASE: zabbix
       MYSQL_USER: zabbix
       MYSQL_PASSWORD: zabbix
@@ -37,12 +37,12 @@ services:
        - '10051:10051'
     restart: always
     links: 
-      - mysql-server:mysql-server
+      - zabbix-mysql:zabbix-mysql
     depends_on:
-      - mysql-server
+      - zabbix-mysql
 
   zabbix-web:
-    image: zabbix/zabbix-web-apache-mysql:alpine-latest
+    image: zabbix/zabbix-web-apache-mysql:ubuntu-5.2-latest
     container_name: zabbix-web
     environment:
       MYSQL_ROOT_PASSWORD: pass
@@ -52,12 +52,12 @@ services:
       PHP_TZ: Europe/Minsk
     network_mode: "zabbix"
     ports:
-      - '80:8080'
-      - '443:8443'
+      - '80:80'
+      - '443:443'
     restart: always
     links: 
       - zabbix-server:zabbix-server
-      - mysql-server:mysql-server
+      - zabbix-mysql:zabbix-mysql
     depends_on:
       - zabbix-server
-      - mysql-server
+      - zabbix-mysql
