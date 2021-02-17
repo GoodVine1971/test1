@@ -1,9 +1,9 @@
 version: '3.5'
 
 services:
-  zabbix-mysql:
+  mysql-server:
     image: mysql:5.7
-    container_name: "zabbix-mysql"
+    container_name: "mysql-server"
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: zabbix
@@ -11,38 +11,38 @@ services:
       MYSQL_PASSWORD: zabbix
     network_mode: "zabbix"
     ports:
-      - '3306:3306'
+      - "3306:3306"
     restart: always
     volumes:
       - /opt/zabbix/mysql:/var/lib/mysql:rw
-    command: 
+    command:
       - mysqld
       - --character-set-server=utf8
       - --collation-server=utf8_bin
       - --default-authentication-plugin=mysql_native_password
 
   zabbix-server:
-    image: zabbix-server-mysql:ubuntu-5.2-latest
+    image: zabbix/zabbix-server-mysql:alpine-latest
     container_name: "zabbix-server"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro 
+      - /etc/timezone:/etc/timezone:ro
     environment:
-      DB_SERVER_HOST: zabbix-mysql
+      DB_SERVER_HOST: mysql-server
       MYSQL_DATABASE: zabbix
       MYSQL_USER: zabbix
       MYSQL_PASSWORD: zabbix
     network_mode: "zabbix"
     ports:
-       - '10051:10051'
+       - "10051:10051"
     restart: always
-    links: 
-      - zabbix-mysql:zabbix-mysql
+    links:
+      - mysql-server:mysql-server
     depends_on:
-      - zabbix-mysql
+      - mysql-server
 
   zabbix-web:
-    image: zabbix/zabbix-web-apache-mysql:ubuntu-5.2-latest
+    image: zabbix/zabbix-web-apache-mysql:alpine-latest
     container_name: zabbix-web
     environment:
       MYSQL_ROOT_PASSWORD: pass
@@ -52,12 +52,28 @@ services:
       PHP_TZ: Europe/Minsk
     network_mode: "zabbix"
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:8080"
+      - "443:8443"
     restart: always
-    links: 
+    links:
       - zabbix-server:zabbix-server
-      - zabbix-mysql:zabbix-mysql
+      - mysql-server:mysql-server
     depends_on:
       - zabbix-server
-      - zabbix-mysql
+      - mysql-server
+	  
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-latest
+    container_name: zabbix-agent
+    network_mode: "zabbix"
+    ports:
+      - "10050:10050"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    links:
+      - zabbix-server:zabbix-server
+    privileged: true
+    pid: "host"
+	  
+
