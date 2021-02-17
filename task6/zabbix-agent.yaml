@@ -1,0 +1,35 @@
+---
+
+- name: Install zabbix agent
+  hosts: client1
+  become:
+    true
+  become_method:
+    sudo
+  tasks:
+
+    - apt:
+        deb: https://repo.zabbix.com/zabbix/5.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.2-1+ubuntu20.04_all.deb
+      
+    - apt:
+        name: zabbix-agent
+        update_cache: yes
+     
+
+    - lineinfile:
+        path: "/etc/zabbix/zabbix_agentd.conf"
+        regexp: "^{{ item.split('=')[0] }}="
+        line: "{{ item }}"
+      with_items:
+        - "Timeout=10"
+        - "Hostname=Ubuntu-client"
+        - "Server=192.168.0.1"
+        - "ServerActive=192.168.0.1"
+      notify:
+        - restart zabbix agent
+ 
+  handlers:
+
+    - name: restart zabbix agent
+      command: /bin/systemctl restart zabbix-agent
+      

@@ -36,16 +36,47 @@ docker network inspect zabbix
 mkdir -pv zabbix/mysql
 sudo nano docker-compose.yaml
 ```
+		на хосте sudo apt  install nmap
+		в контейнере mysql поставим apt-get install iputils-ping
+
 
 Установка в docker сопровождалась сложностями с настройкой сети и портов, т.к. в образах внутренние порты изменены.
 По-умолчанию 
 Логин: Admin  (именно сбольшой буквы)
 Пароль zabbix
 
-Установим агента
+Смотрим ip агента:
+docker inspect zabbix-agent | grep "IPAddress\": "
+
+172.26.0.5
+вставляем вместо 127.0.0.1 в настойках агента дефолтного хоста Zabbix server
+
+![Результат выполнения:](show_base.jpg)  
+
+Установим агента на виртуальную машину при помощи ansible
+
+ansible-agent.yaml
+Выполняем 
+ ansible-playbook zabbix-agent.yaml --ask-become-pass
+
+
+
+
+
+
+
+
+
+
+
+
+Установим агента для mysql57 из task5:
+
+docker run --name zabbix-agent2- --link mysql-server:mysql-server --link zabbix-server:zabbix-server -e ZBX_HOSTNAME="Zabbix server" -e ZBX_SERVER_HOST="zabbix-server" -d zabbix/zabbix-agent
+
 
 docker run --name some-zabbix-agent -e ZBX_HOSTNAME="some-hostname" -e ZBX_SERVER_HOST="some-zabbix-server" -d zabbix/zabbix-agent:latest
-ПолучаемЖ
+Получаем:
 docker run --name zabbix-agent -e ZBX_HOSTNAME="ZabbixServ" -e ZBX_SERVER_HOST="192.168.0.1" -d zabbix/zabbix-agent:latest
 
 
