@@ -36,30 +36,78 @@ docker network inspect zabbix
 mkdir -pv zabbix/mysql
 sudo nano docker-compose.yaml
 ```
-		на хосте sudo apt  install nmap
-		в контейнере mysql поставим apt-get install iputils-ping
+(Установка в docker сопровождалась сложностями с настройкой сети и портов, т.к. в образах внутренние порты изменены.)
 
+Заходим в браузере: 
 
-Установка в docker сопровождалась сложностями с настройкой сети и портов, т.к. в образах внутренние порты изменены.
-По-умолчанию 
-Логин: Admin  (именно сбольшой буквы)
-Пароль zabbix
+	По-умолчанию 
+	Логин: Admin  (именно сбольшой буквы)
+	Пароль zabbix
 
 Смотрим ip агента:
+```sh
 docker inspect zabbix-agent | grep "IPAddress\": "
+```
+>	172.26.0.5
 
-172.26.0.5
 вставляем вместо 127.0.0.1 в настойках агента дефолтного хоста Zabbix server
 
-![Результат выполнения:](show_base.jpg)  
+![Результат выполнения:](zab-inst.jpg)  
+
+
+###  1.2 Поставить на подготовленные ранее сервера или виртуалки заббикс агенты  ###
+
 
 Установим агента на виртуальную машину при помощи ansible
 
-ansible-agent.yaml
-Выполняем 
+Добавляем  в /etc/ansible/hosts 
+ [ubuntu]
+  client1 ansible_host=ansclient@192.168.0.10
+  client2 ansible_host=ansclient@192.168.0.20
+		
+Создаем  ansible-agent.yaml следующего содержания 
+
+		---
+
+		- name: Install zabbix agent
+		  hosts: client1
+		  become:
+			true
+		  become_method:
+			sudo
+		  tasks:
+
+			- apt:
+				deb: https://repo.zabbix.com/zabbix/5.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.2-1+ubuntu20.04_all.deb
+			  
+			- apt:
+				name: zabbix-agent
+				update_cache: yes
+			 
+
+			- lineinfile:
+				path: "/etc/zabbix/zabbix_agentd.conf"
+				regexp: "^{{ item.split('=')[0] }}="
+				line: "{{ item }}"
+			  with_items:
+				- "Timeout=10"
+				- "Hostname=Ubuntu-client"
+				- "Server=192.168.0.1"
+				- "ServerActive=192.168.0.1"
+			  notify:
+				- restart zabbix agent
+		 
+		  handlers:
+
+			- name: restart zabbix agent
+			  command: /bin/systemctl restart zabbix-agent
+
+Выполняем :
+```sh
  ansible-playbook zabbix-agent.yaml --ask-become-pass
+```
 
-
+![Результат выполнения:](ansible_agent.jpg) 
 
 
 
@@ -177,6 +225,12 @@ sudo systemctl start elasticsearch
 Проверяем: 
 sudo systemctl status elasticsearch
 curl -X GET "localhost:9200"
+
+Частая ошибка: elasticsearch.service: Failed with result 'timeout'.
+Немного помогло 
+sudo systemctl edit --full elasticsearch.service
+и установка  TimeoutStartSec=180
+Но, похоже и этого мало
 
 Далее устанавливаем  Kibana
 
