@@ -123,5 +123,138 @@ docker run --name zabbix-server --link zabbix-agent:zabbix-agent2 -d zabbix/zabb
 docker run --name zabbix-server --link zabbix-agent:zabbix-agent -d zabbix/zabbix-server:latest
 
 
-![Результат выполнения:](show_base.jpg)  
 
+##   ELK   ##
+
+###  2.1 Установить и настроить ELK  ###
+
+sudo apt update
+Ставим nginx и https-transport
+
+sudo apt install nginx install apt-transport-https -y
+
+sudo nano /etc/nginx/sites-available/elk
+
+sudo ln -s /etc/nginx/sites-available/elk /etc/nginx/sites-enabled/elk
+
+Установка виртуальной машины Java Java Runtime Environment (JRE).
+sudo apt install default-jre -y
+и компилятор JDK 
+sudo apt install default-jdk -y
+
+Java Runtime Environment (JRE).
+Импортируем открытый ключ GPG Elasticsearch, с использованием которого защищаются пакеты Elastic, выполнив команду: 
+
+sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add 
+
+Добавляем репозиторий Elasticsearch в систему:
+
+sudo echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+
+sudo apt update
+
+Установка Elasticsearch
+
+sudo apt install elasticsearch
+
+Редактируем главный файл конфигурации Elasticsearch
+sudo nano /etc/elasticsearch/elasticsearch.yml
+задаем:
+network.host: localhost
+port: 9200
+Добавляем в автозапуск:
+
+sudo systemctl enable elasticsearch
+
+Запускаем:
+systemctl daemon-reload 
+sudo systemctl enable elasticsearch.service 
+sudo systemctl start elasticsearch
+
+Из-за ошибок fatal signal was delivered to the control process пришлось устанавливать на новую виртуалку.
+![Ошибка запуска:](ELK-error.jpg)  
+
+Проверяем: 
+sudo systemctl status elasticsearch
+curl -X GET "localhost:9200"
+
+Далее устанавливаем  Kibana
+
+sudo apt install kibana
+
+sudo nano /etc/kibana/kibana.yml раскоментируем server.port, server.host и elasticsearch.hosts: 
+
+Запускаем службу
+sudo systemctl enable kibana
+sudo systemctl start kibana
+Проверяем статус:
+systemctl status kibana.service
+
+Вводим админа:
+
+echo "admin:`openssl passwd -apr1`" | sudo tee -a /etc/nginx/htpasswd.users
+http://localhost:5601
+
+Установка Logstash 
+
+sudo apt install logstash
+
+sudo nano /etc/logstash/conf.d/beats-input.conf
+input {
+beats {
+port => 5044
+}
+}
+
+sudo nano /etc/logstash/conf.d/elasticsearch-output.conf
+output {
+if [@metadata][pipeline] {
+elasticsearch {
+hosts => ["localhost:9200"] manage_template => false
+index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+pipeline => "%{[@metadata][pipeline]}"
+}
+} else {
+elasticsearch {
+hosts => ["localhost:9200"] manage_template => false
+index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+}
+}
+}
+
+
+Проверим конфигурацию Logstash:
+
+sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+
+если OK pапускаем  Logstash:
+
+sudo systemctl start logstash
+sudo systemctl enable logstash
+
+Установим Filebeat.
+
+sudo apt install filebeat
+
+sudo nano /etc/filebeat/filebeat.yml
+
+Комментируем output.elasticsearch и открываем output.logstash/bin/logstash
+
+Включаем модуль
+sudo filebeat modules enable system
+sudo filebeat modules enable logstash
+Посмотреть все модули:
+sudo filebeat modules list
+
+шаблон индекса Elasticsearch
+sudo filebeat setup --template -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
+Дашборды позволяют визуализировать данные Filebeat отсылаемые в Kibana. Для включения дашборда
+sudo filebeat setup -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601
+
+Запуск и автозагрузка:
+systemctl start filebeat
+systemctl enable filebeat
+
+заходим 192.168.0.10
+
+Вводим 
