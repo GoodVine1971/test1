@@ -254,6 +254,9 @@ iptables -I OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
 ![Результат:](main-tag.jpg) 
 ![Результат:](alert.jpg) 
 
+###  1.7 Нарисовать дашборд   ###
+
+![Результат:](dash-7.jpg) 
 
 
 ##   ELK   ##
@@ -266,6 +269,23 @@ sudo apt update
 sudo apt install nginx install apt-transport-https -y
 
 sudo nano /etc/nginx/sites-available/elk
+server {
+    listen 80;
+
+    server_name localhost;
+
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/htpasswd.users;
+
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
 
 sudo ln -s /etc/nginx/sites-available/elk /etc/nginx/sites-enabled/elk
 
@@ -395,4 +415,25 @@ systemctl enable filebeat
 
 заходим 192.168.0.10
 
-Вводим 
+Вводим логин и пасс, созданные выше
+
+![Результат:](elk-1.jpg) 
+
+И теперь тоже самое чере docker
+
+в  /etc/sysctl.conf
+добавить:
+
+vm.max_map_count=262144
+
+
+sudo git clone https://github.com/deviantony/docker-elk /opt/elk
+
+Устанавливаем nginx  как выше
+echo "elastic:`openssl passwd -apr1`" | sudo tee -a /etc/nginx/htpasswd.users
+pass: changeme
+
+
+###   2.2 Организовать сбор логов из докера в ELK и получать данные от запущенных контейнеров   ###
+
+
