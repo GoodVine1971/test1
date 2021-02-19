@@ -254,9 +254,6 @@ iptables -I OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
 ![Результат:](main-tag.jpg) 
 ![Результат:](alert.jpg) 
 
-###  1.7 Нарисовать дашборд   ###
-
-![Результат:](alert.jpg) 
 
 
 ##   ELK   ##
