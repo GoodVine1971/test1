@@ -137,11 +137,12 @@ docker run --name zabbix-agent2 -v /opt/zabbix/agent:/etc/zabbix/zabbix_agentd.d
 	UserParameter=mysql.replication.discovery[*], mysql -h"$1" -P"$2" -sNX -e "show slave status"
 	UserParameter=mysql.slave_status[*], mysql -h"$1" -P"$2" -sNX -e "show slave status"
 
-В  /opt/zabbix/conf создаем:
-# cat /var/lib/zabbix/.my.cnf
-[client]
-user = zabbix
-password = zabbix
+создаем:
+ /var/lib/zabbix/.my.cnf
+
+	[client]
+	user = zabbix
+	password = zabbix
 
 В контейнере mysql добавляем нового пользователя:
 ```sh
