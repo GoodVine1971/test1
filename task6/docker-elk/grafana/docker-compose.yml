@@ -1,0 +1,19 @@
+version: '3.2'
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    user: root
+    volumes:
+      - /var/lib/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    environment:
+      - TERM=linux
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel,grafana-polystat-panel
