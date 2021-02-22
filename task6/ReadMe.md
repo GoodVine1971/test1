@@ -520,83 +520,94 @@ nano filebeat.docker.yml
  ##### Настроим вывод логов через metricbeat
  
  На хосте с elk выполняем :
- 
+ ```sh
  docker-compose -f docker-compose.yml -f extensions/metricbeat/metricbeat-compose.yml up
- 
+ ```
  т.к. там уже есть extensions/metricbeat
- 
+  
   ![Результат:](metricbeat.jpg)  
-  
+   
+К сожалению, templates для metricbeat не установлены, исправим это:     
   Заходим в контейнер 
+```sh  
   docker exec -it elk_metricbeat_1  bash
-  
+```  
   Смотрим какие модули разрешены
+  ```sh
   metricbeat modules list
-  
+```  
   Раззрешаем :
+```sh  
   metricbeat modules enable docker
+```
   
- Загружаем   dashbord templates
-  
+ Загружаем   dashbord templates:
+```sh  
   metricbeat setup -e \
   -E output.logstash.enabled=false \
   -E output.elasticsearch.hosts=['192.168.0.10:9200'] \
   -E output.elasticsearch.username=elastic \
   -E output.elasticsearch.password=changeme \
   -E setup.kibana.host=192.168.0.10:5601
-  
+```  
 Строим  dashboard  
- 
+  
 ![Результат:](metric_dash.jpg) 
+  
 
 ##   Grafana   ##
 
 Установим в контейнер
 
 Добавим раздел grafana в наш /opt/elk
-
+```sh
 mkdir grafana
 cd grafana
 nano docker-compose.yml
+```
 
-version: '3.2'
+	version: '3.2'
 
-services:
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-	volumes:
-      - /var/lib/grafana:/var/lib/grafana
-	restart: always
-	user: root
-    ports:
-      - "3000:3000"
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
-	environment:
-    - TERM=linux
-    - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel,grafana-polystat-panel
+	services:
+	  grafana:
+		image: grafana/grafana:latest
+		container_name: grafana
+		volumes:
+		  - /var/lib/grafana:/var/lib/grafana
+		restart: always
+		user: root
+		ports:
+		  - "3000:3000"
+		networks:
+		  - elk
+		depends_on:
+		  - elasticsearch
+		environment:
+		- TERM=linux
+		- GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel,grafana-polystat-panel
 
+```sh
 mkdir /var/lib/grafana -p
 cd ..
 docker-compose -f docker-compose.yml -f grafana/docker-compose.yml up -d
+```
 
-Сменить пароль:
+Сменить пароль к Grafana:
+```sh
 docker exec -it <name of grafana container> grafana-cli admin reset-admin-password admin
+```
 
-
-Натраиваем: Datasources > Add New > Elasticsearch и указываем в качестве indexname: metricbeat-*
-
-Далее   Dashboards > New
-
-Настраиваем панели, используя данные metricbeat (подсматривая как это сделано в Visualization elk
-
-  ![Результат:](grafana-panel.jpg)  
+Натраиваем: Datasources > Add New > Elasticsearch и указываем в качестве indexname: metricbeat-*  
   
- Получаем Dashboard
+Далее   Dashboards > New
+  
+Настраиваем панели, используя данные metricbeat (подсматривая как это сделано в Visualization elk)
+  
+  
+  ![Результат:](grafana-panel.jpg)  
+   
+ Получаем Dashboard:
  
    ![Результат:](grafana-dash.jpg) 
   
-  
+
