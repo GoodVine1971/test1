@@ -167,7 +167,7 @@ apt install zabbix-agent
 
 ###  1.3 Сделать  дашбород, куда вывести данные с  триггер на изменение размера базы ###
 
-Создал новый хост в ZABBIX добавил триггер на изменение размера базы:
+Создал новый хост в ZABBIX, добавил триггер на изменение размера базы:
 
 ![Триггер:](trigger.jpg) 
 
@@ -270,10 +270,11 @@ sudo apt update
 sudo apt install nginx install apt-transport-https -y
 
 sudo nano /etc/nginx/sites-available/elk
+
 server {
     listen 80;
 
-    server_name localhost;
+    server_name 192.168.0.10;  ###### localhost
 
     auth_basic "Restricted Access";
     auth_basic_user_file /etc/nginx/htpasswd.users;
@@ -287,6 +288,7 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
+
 
 sudo ln -s /etc/nginx/sites-available/elk /etc/nginx/sites-enabled/elk
 
@@ -437,4 +439,73 @@ pass: changeme
 
 ###   2.2 Организовать сбор логов из докера в ELK и получать данные от запущенных контейнеров   ###
 
+Добавляем в docker-compose  раздел для filebeats
 
+Останавливаем все контейнеры:
+docker stop $(docker ps -a -q)
+
+и запускаем docker-compose снова
+
+![Результат:](discov_docker.jpg) 
+
+Установим filebeat на другом хосте
+
+docker pull docker.elastic.co/beats/filebeat:7.11.1
+
+docker run \
+docker.elastic.co/beats/filebeat:7.11.1 \
+setup -E setup.kibana.host=192.168.0.10:5601 \
+-E output.elasticsearch.username=elastic \
+-E output.elasticsearch.password=changeme \
+-E output.elasticsearch.hosts=["192.168.0.10:9200"]
+
+Сделаем конфигурационнный файл
+
+curl -L -O https://raw.githubusercontent.com/elastic/beats/7.11/deploy/docker/filebeat.docker.yml
+nano filebeat.docker.yml
+и меняем ip, добавляем user и password
+
+
+docker run -d \
+  --name=filebeat \
+  --user=root \
+  --volume="$(pwd)/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro" \
+  --volume="/var/lib/docker/containers:/var/lib/docker/containers:ro" \
+  --volume="/var/run/docker.sock:/var/run/docker.sock:ro" \
+  docker.elastic.co/beats/filebeat:7.11.1 filebeat -e -strict.perms=false \
+  -E output.elasticsearch.hosts=["192.168.0.10:9200"]
+  
+ ![Результат:](discov_mysql.jpg)  
+ 
+ Настроим вывод логов через metricbeat
+ 
+ На хосте с elk:
+ 
+ docker-compose -f docker-compose.yml -f extensions/metricbeat/metricbeat-compose.yml up
+ 
+  ![Результат:](metricbeat.jpg)  
+  
+  Заходим в контейнер 
+  metricbeat modules enable apache mysql
+  
+  Смотрим какие модули разрешены
+  metricbeat modules list
+  
+  Раззрешаем :
+  metricbeat modules enable apache mysql docker
+  
+  metricbeat setup -e \
+  -E output.logstash.enabled=false \
+  -E output.elasticsearch.hosts=['elk.loc:9200'] \
+  -E output.elasticsearch.username=elastic \
+  -E output.elasticsearch.password=chengeme \
+  -E setup.kibana.host=elk.loc:5601
+  
+  
+  metricbeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["elasticsearch:9200"]'
+  
+ 
+ 
+ docker pull docker.elastic.co/beats/metricbeat:7.11.1
+ 
+ 
