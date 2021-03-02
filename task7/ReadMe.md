@@ -118,4 +118,4 @@ sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
 Попробуем использовать Trigger builds remotely
 Добавили TOKEN: triggerFrontBuild
 и изменили  webhook на git 
-http://23.97.196.147:8080/JENKINS_URL/job/frontend/build?token=triggerFrontBuild
+http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
