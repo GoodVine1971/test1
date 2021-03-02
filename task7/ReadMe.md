@@ -113,9 +113,19 @@ pipeline:
 sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend'
 sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
 
+
+
+
 Настраиваем webhook в github и в настройках pipeline отмечаем GitHub hook trigger for GITScm polling
+
+http://23.97.196.147:8080/github-webhook/ .
 Не сработало
 Попробуем использовать Trigger builds remotely
 Добавили TOKEN: triggerFrontBuild
 и изменили  webhook на git 
 http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
+
+Создадми пользователя gituser в jenkins
+
+http://username:password@jenkins.domain.tld/github-webhook/
+
