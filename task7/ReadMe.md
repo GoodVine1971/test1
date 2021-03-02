@@ -56,7 +56,6 @@ docker run  -it --rm  --name back -p 5000:80  backend
 
 
 
-
 #  ASURE
 
 
@@ -97,3 +96,19 @@ docker-compose -f /opt/jenkins/docker-compose.yml up -d
 iptables -A TCP -p tcp --dport 8080 -j ACCEPT
 iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 ufw allow 8080
+
+
+
+Настройки pipeline
+
+Для скачивания только папки из git 
+sudo apt install subversion
+
+svn ls https://github.com/GoodVine1971/test1/trunk/task7/frontend       проверить, а потом
+svn checkout https://github.com/GoodVine1971/test1/trunk/task7/frontend   или лучше (так только папка)
+svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend
+А затем перносим содержимое frontend в корень
+mv -f frontend/* frontend/.[^.]* . && rmdir frontend/
+pipeline:
+sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend'
+sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
