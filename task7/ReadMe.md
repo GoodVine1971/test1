@@ -128,4 +128,6 @@ http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 Создадми пользователя gituser в jenkins
 
 http://username:password@jenkins.domain.tld/github-webhook/
+http://gituser:1@23.97.196.147:8080/github-webhook/
+
 
