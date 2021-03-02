@@ -112,3 +112,5 @@ mv -f frontend/* frontend/.[^.]* . && rmdir frontend/
 pipeline:
 sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend'
 sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
+
+Настраиваем webhook в github и в настройках pipeline отмечаем GitHub hook trigger for GITScm polling
