@@ -1,0 +1,14 @@
+# directories
+**/bin/
+**/obj/
+**/out/
+
+# files
+Dockerfile*
+**/*.md
+.git
+.gitignore
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
