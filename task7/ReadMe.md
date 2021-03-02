@@ -129,5 +129,10 @@ http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
 http://username:password@jenkins.domain.tld/github-webhook/
 http://gituser:1@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
-
-
+ Через пароль не работает . Добавляем API token в настройках пользователя gituser
+117f7baccf16e2f8c8244376949b3eb322
+http://gituser:117f7baccf16e2f8c8244376949b3eb322@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
+ Ура пошло!
+ 
+ Включить запрещение Do not allow concurrent builds
+ 

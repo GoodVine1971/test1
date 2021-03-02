@@ -19,12 +19,12 @@ COPY ExadelBonusPlus.Services.Models/. ./ExadelBonusPlus.Services.Models/
 COPY ExadelBonusPlus.Services.Tests/. ./ExadelBonusPlus.Services.Tests/
 COPY ExadelBonusPlus.WebApi/. ./ExadelBonusPlus.WebApi/
 
-WORKDIR /source/ExadelBonusPlus.DataAccess
-RUN dotnet publish -c release -o /app --no-restore
-WORKDIR /source/ExadelBonusPlus.Services
-RUN dotnet publish -c release -o /app --no-restore
-WORKDIR /source/ExadelBonusPlus.Services.Models
-RUN dotnet publish -c release -o /app --no-restore
+#WORKDIR /source/ExadelBonusPlus.DataAccess
+#RUN dotnet publish -c release -o /app --no-restore
+#WORKDIR /source/ExadelBonusPlus.Services
+#RUN dotnet publish -c release -o /app --no-restore
+#WORKDIR /source/ExadelBonusPlus.Services.Models
+#RUN dotnet publish -c release -o /app --no-restore
 
 WORKDIR /source/ExadelBonusPlus.WebApi
 RUN dotnet publish -c release -o /app --no-restore
