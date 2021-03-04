@@ -216,11 +216,11 @@ Create a service principal using Az CLI:
     az ad sp create-for-rbac
 	
 	Получим
-  "appId": "905c1797-c740-48a8-90aa-4c43e22f7502",
+  "appId": "999999999-c740-48a8-90aa-0000000",
   "displayName": "azure-cli-2021-03-03-17-35-27",
   "name": "http://azure-cli-2021-03-03-17-35-27",
-  "password": "nA6IqovmBQpyxKjXC.5X.kv1nHjTyg22F3",
-  "tenant": "db4a653e-5a22-440f-a0a9-3e34b33a4052"
+  "password": "555555mBQpyxKjXC.5X.00000000000000",
+  "tenant": "9999999-5a22-440f-a0a9-0000000000"
 	
 Добавим credential  Username with password и введем следующее :
 
