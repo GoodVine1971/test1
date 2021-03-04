@@ -1,0 +1,23 @@
+---
+#- hosts: ubuntu-1
+- hosts: client1
+#  connection: local
+  become:
+    true
+  become_method:
+    sudo
+
+#  vars_files:
+    #- './vars/users.yaml'
+
+  roles:
+    - role: copytest
+      tags: copytest
+#    - role: packages
+#      tags: packages
+#    - role: users
+#      tags: users
+#    - role: docker
+#      tags: docker
+    - role: jenkins
+      tags: jenkins      

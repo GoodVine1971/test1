@@ -101,8 +101,8 @@ ufw allow 8080
 
 Настройки pipeline
 
-Для скачивания только папки из git 
-sudo apt install subversion
+Для скачивания только папки из git установим пакет
+sudo apt install subversion -y
 
 svn ls https://github.com/GoodVine1971/test1/trunk/task7/frontend       проверить, а потом
 svn checkout https://github.com/GoodVine1971/test1/trunk/task7/frontend   или лучше (так только папка)
@@ -135,4 +135,97 @@ http://gituser:117f7baccf16e2f8c8244376949b3eb322@23.97.196.147:8080/job/fronten
  Ура пошло!
  
  Включить запрещение Do not allow concurrent builds
+ или в pipeline 
+ options {
+disableConcurrentBuilds()
+}
  
+ Если происходит много commit, то  может возникнуть большая нагрузка, для этого вместо webhook использовать poll SCM
+ Расписание:  H */3 * * *   (каждые 3 часа, Р вместо 0, чтобы не запускалось в 3:00, 6:00, а произвольное время, н-р 3:21
+ 
+ 
+++++++++++++++++++++++++++++++++++
+
+
+# Container Registry
+https://docs.microsoft.com/ru-ru/azure/container-registry/container-registry-tutorial-prepare-registry
+
+Сначала нужно установить Azure CLI : https://docs.microsoft.com/ru-ru/cli/azure/install-azure-cli
+
+
+Открываем https://microsoft.com/devicelogin   или https://aka.ms/devicelogin вводим полученный код: C4WVU56WC 
+
+Создаем Реестр GoodVine  контейнеров Azure  нашей Resource Group.  (GoodVone_RG)
+
+Перейдите в новый реестр контейнеров на портале Azure и в разделе Параметры выберите Ключи доступа. В разделе Пользователь-администратор выберите Включить
+
+Запуск контейнера с Azure CLI 
+
+docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft.com/azure-cli   здесь --rm, чтобы Docker автоматически очищал контейнер и удалял файловую систему при выходе из контейнера
+
+Затем? чтобы можно было работать с image на хосте:
+apk --no-cache add docker
+
+Теперь пользоваться docker из контейнера (н-р docker image - все образы на хосте)
+
+Входим: az login
+Открываем https://microsoft.com/devicelogin   или https://aka.ms/devicelogin вводим полученный код: C4WVU56WC 
+
+Входим в реестр:
+az acr login --name goodvine   
+_______________________________
+
+
+Можно подключиться без CLI 
+> docker login goodvine.azurecr.io -u goodvine -p password  , где password из раздела ключи в настройке Registry
+
+Присвоим тэг:
+
+docker tag frontend goodvine.azurecr.io/frontend:v1
+
+Отправим в registry :
+
+docker push goodvine.azurecr.io/frontend:v1 
+
+Просмотреть registry :
+
+az acr repository list --name goodvine --output table
+
+удалить образ
+
+az acr repository delete --name goodvine --image frontend:v1
+
+Создать в registry образ из существующего с другим тэгом:
+
+az acr import -n goodvine --force --source goodvine.azurecr.io/myimage:latest -t myimage:retagged 
+az acr import -n goodvine --force --source goodvine.azurecr.io/frontend:v12 -t frontend:latest
+
+Удалить тэг:
+az acr repository untag -n goodvine --image frontend:v12
+удалить untagged images:
+acr purge --filter 'frontend:.*'  --untagged
+Удалить манифест и все тэги  для image frontend
+az acr repository delete -n goodvine --image frontend:v12
+
+_______________________________
+
+Задать credentials для Jenkins 
+
+Create a service principal using Az CLI:
+
+    az ad sp create-for-rbac
+	
+	Получим
+  "appId": "905c1797-c740-48a8-90aa-4c43e22f7502",
+  "displayName": "azure-cli-2021-03-03-17-35-27",
+  "name": "http://azure-cli-2021-03-03-17-35-27",
+  "password": "nA6IqovmBQpyxKjXC.5X.kv1nHjTyg22F3",
+  "tenant": "db4a653e-5a22-440f-a0a9-3e34b33a4052"
+	
+Добавим credential  Username with password и введем следующее :
+
+Username - The appId of the service principal created.
+Password - The password of the service principal created.
+ID - Credential identifier such as AzureServicePrincipal
+	
+

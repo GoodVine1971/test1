@@ -1,0 +1,12 @@
+---
+
+- name: Create jenkins dir
+  shell: mkdir -p /opt/jenkins/jenkins_home
+
+- name: Copy docker-compose file
+  template:
+    src: "docker-compose.yml.j2"
+    dest: "/opt/jenkins/docker-compose.yml"
+    mode: "0755"
+- name: Run docker-compose for jenkins install
+  shell: ansible-playbook /opt/jenkins/docker-compose.yml 
