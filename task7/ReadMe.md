@@ -203,7 +203,17 @@ az acr import -n goodvine --force --source goodvine.azurecr.io/frontend:v12 -t f
 Удалить тэг:
 az acr repository untag -n goodvine --image frontend:v12
 удалить untagged images:
-acr purge --filter 'frontend:.*'  --untagged
+
+PURGE_CMD="acr purge --filter 'frontend:.*' \
+  --untagged --ago 1d"
+
+az acr run \
+  --cmd "$PURGE_CMD" \
+  --registry goodvine \
+  /dev/null
+  
+  
+az acr run --registry goodvine --cmd "purge --filter 'frontend:.*'  --untagged" 
 Удалить манифест и все тэги  для image frontend
 az acr repository delete -n goodvine --image frontend:v12
 

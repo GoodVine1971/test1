@@ -4,10 +4,10 @@ WORKDIR /source
 
 # copy csproj and restore as distinct layers
 COPY *.sln .
-#COPY ExadelBonusPlus.DataAccess/*.csproj ./ExadelBonusPlus.DataAccess/
-#COPY ExadelBonusPlus.Services/*.csproj ./ExadelBonusPlus.Services/
-#COPY ExadelBonusPlus.Services.Models/*.csproj ./ExadelBonusPlus.Services.Models/
-#COPY ExadelBonusPlus.Services.Tests/*.csproj ./ExadelBonusPlus.Services.Tests/
+COPY ExadelBonusPlus.DataAccess/*.csproj ./ExadelBonusPlus.DataAccess/
+COPY ExadelBonusPlus.Services/*.csproj ./ExadelBonusPlus.Services/
+COPY ExadelBonusPlus.Services.Models/*.csproj ./ExadelBonusPlus.Services.Models/
+COPY ExadelBonusPlus.Services.Tests/*.csproj ./ExadelBonusPlus.Services.Tests/
 COPY ExadelBonusPlus.WebApi/*.csproj ./ExadelBonusPlus.WebApi/
 
 RUN dotnet restore

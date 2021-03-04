@@ -50,6 +50,19 @@ stages {
        // sh 'docker push goodvine.azurecr.io/frontend:v1'
         }
     }
+	stage('Run image') {
+        steps {
+        // Останавливаем и удаляем контейнер front
+        sh 'sh docker rm -f front'
+		// запускаем новый
+		sh 'docker run --name front -d -p 80:80 frontend'
+        //sh 'docker stop front'
+        //sh 'docker rm front'
+		// Можго сделать push образа без Azure CLI				
+		// sh 'docker login goodvine.azurecr.io -u goodvine -p passwor_from_keys'
+       // sh 'docker push goodvine.azurecr.io/frontend:v1'
+        }
+    }
 	 stage('Deploy Image') {
 		environment {
         int prev_tag = "${currentBuild.previousBuild.getNumber()}"
