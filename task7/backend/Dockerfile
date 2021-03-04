@@ -13,10 +13,10 @@ COPY ExadelBonusPlus.WebApi/*.csproj ./ExadelBonusPlus.WebApi/
 RUN dotnet restore
 
 # copy everything else and build app
-#COPY ExadelBonusPlus.DataAccess/. ./ExadelBonusPlus.DataAccess/
-#COPY ExadelBonusPlus.Services/. ./ExadelBonusPlus.Services/
-#COPY ExadelBonusPlus.Services.Models/. ./ExadelBonusPlus.Services.Models/
-#COPY ExadelBonusPlus.Services.Tests/. ./ExadelBonusPlus.Services.Tests/
+COPY ExadelBonusPlus.DataAccess/. ./ExadelBonusPlus.DataAccess/
+COPY ExadelBonusPlus.Services/. ./ExadelBonusPlus.Services/
+COPY ExadelBonusPlus.Services.Models/. ./ExadelBonusPlus.Services.Models/
+COPY ExadelBonusPlus.Services.Tests/. ./ExadelBonusPlus.Services.Tests/
 COPY ExadelBonusPlus.WebApi/. ./ExadelBonusPlus.WebApi/
 
 #WORKDIR /source/ExadelBonusPlus.DataAccess
