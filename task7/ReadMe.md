@@ -238,4 +238,28 @@ Username - The appId of the service principal created.
 Password - The password of the service principal created.
 ID - Credential identifier such as AzureServicePrincipal
 	
+_______________________________
+
+##Proxy
+
+Существует проблема запуска на одном хосте frontend и backend:
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource 
+
+Добавление обратного proxy сервера:
+
+Добавим новую сеть:
+docker network create docknet
+
+И в hosts сайты front.loc и back.loc
+sudo sed -i "2i127.0.0.1\tfront.loc" /etc/hosts
+sudo sed -i "2i127.0.0.1\tback.loc" /etc/hosts
+
+docker network connect docknet front
+docker network connect docknet back
+
+проверим:
+docker network inspect docknet
+Тест пинга:
+docker exec -ti front ping back
+
 

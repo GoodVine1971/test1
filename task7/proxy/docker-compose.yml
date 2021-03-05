@@ -1,0 +1,41 @@
+version: '3.7'
+
+
+services:
+
+  proxy:
+    image: jwilder/nginx-proxy
+    container_name: newproxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
+    networks: 
+            - docknet
+      
+  front:
+    image: frontend
+    container_name: front
+    environment:
+      VIRTUAL_HOST: front.loc
+    ports:
+      - 8000:80
+    networks: 
+            - docknet
+
+  back:
+    image: backend
+    container_name: back
+    environment:
+      VIRTUAL_HOST: back.loc
+    ports:
+      - 8001:80
+    networks: 
+            - docknet
+            
+networks:
+  net:
+    external: true
+      
