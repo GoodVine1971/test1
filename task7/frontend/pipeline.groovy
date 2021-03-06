@@ -12,19 +12,14 @@ pipeline {
 stages {
     stage('Prepare') {
         steps {
-            
-            //sh 'mkdir exadelBonus'
-            //sh 'cd exadelBonus'
             git branch: 'develop', url: 'https://github.com/umilanovich/exadelBonus'
            
-            //sh 'cp -f /home/ansclient/frontend/nginx.conf . '
-            //sh 'mkdir frontend'
-            //sh 'ls'
-         }
+			//sh 'cp -f /home/ansclient/frontend/nginx.conf . '
+              }
     }
     stage('Get Dockerfile and change url to backend') {
         environment {
-        newUrl = 'apiUrl: "http://localhost:5000", '
+        newUrl = 'apiUrl: "http://back.loc", '
         apiUrl = newUrl.replace("/", "\\/")
         }
         steps {
@@ -42,27 +37,13 @@ stages {
         steps {
         
         sh 'docker build -t frontend .'
-      sh 'ls'
-        //sh 'docker stop front'
-        //sh 'docker rm front'
+     
 		// Можго сделать push образа без Azure CLI				
 		// sh 'docker login goodvine.azurecr.io -u goodvine -p passwor_from_keys'
-       // sh 'docker push goodvine.azurecr.io/frontend:v1'
+        // sh 'docker push goodvine.azurecr.io/frontend:v1'
         }
     }
-	stage('Run image') {
-        steps {
-        // Останавливаем и удаляем контейнер front
-        sh 'sh docker rm -f front'
-		// запускаем новый
-		sh 'docker run --name front -d -p 80:80 frontend'
-        //sh 'docker stop front'
-        //sh 'docker rm front'
-		// Можго сделать push образа без Azure CLI				
-		// sh 'docker login goodvine.azurecr.io -u goodvine -p passwor_from_keys'
-       // sh 'docker push goodvine.azurecr.io/frontend:v1'
-        }
-    }
+	
 	 stage('Deploy Image') {
 		environment {
         int prev_tag = "${currentBuild.previousBuild.getNumber()}"
@@ -105,7 +86,7 @@ stages {
 	//	sh 'echo $BUILD_NUMBER -1'
 		//sh 'echo ${num}'
 	//	sh 'az acr repository delete --name goodvine --image frontend:v1'
-		sh 'sleep 10'
+		sh 'sleep 1'
 		
         }
     }
