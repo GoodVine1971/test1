@@ -29,8 +29,7 @@ stages {
             sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/backend'
             sh 'mv -f backend/* backend/.[^.]* . && rmdir backend/'
             sh "sed -i -e 's/^.*ConnectionString.*/${ConnectionString}/g' ExadelBonusPlus.WebApi/appsettings.json"
-            sh "sed -i -e 's/^.*ConnectionString.*/${ConnectionString}/g' ExadelBonusPlus.WebApi/appsettings.json"           
-        }    
+            }    
         
     }
     stage('Build') {
