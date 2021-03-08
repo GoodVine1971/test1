@@ -4,7 +4,7 @@ services:
   image: "jenkinsci/blueocean"
   container_name: "jenkins-dock"
   volumes:
-  - /opt/jenkins/jenkins_home/:/var/jenkins_home
+  - ~jenkins/jenkins_home/:/var/jenkins_home
   - /var/run/docker.sock:/var/run/docker.sock:rw
   - /usr/bin/docker:/usr/bin/docker
 #  network_mode: host

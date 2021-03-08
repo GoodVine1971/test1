@@ -1,23 +1,25 @@
 ---
-#- hosts: ubuntu-1
-- hosts: client1
+- hosts: ubuntu-1
+#- hosts: client1
 #  connection: local
   become:
     true
-  become_method:
-    sudo
+#  become_user: goodvine
+
+#  become_method: sudo
 
 #  vars_files:
     #- './vars/users.yaml'
 
   roles:
-    - role: copytest
-      tags: copytest
 #    - role: packages
 #      tags: packages
 #    - role: users
 #      tags: users
 #    - role: docker
 #      tags: docker
-    - role: jenkins
-      tags: jenkins      
+#    - role: jenkins
+#      tags: jenkins
+#   copytest - установка Jenkins на Azure Ubuntu-1
+    - role: copytest
+      tags: copytest

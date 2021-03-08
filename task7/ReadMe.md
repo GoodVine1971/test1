@@ -86,11 +86,22 @@ docker run  -it --rm  --name back -p 5000:80  backend
 	sudo usermod -aG sudo jenkins
 	sudo usermod -aG docker jenkins	
 
-Установка контейнера с jenkins через ansible:
+Установка контейнера с jenkins через ansible? установленном на локальной машине:
+В папке /etc/ansible/  hosts
+[azure]
+        ubuntu-1 ansible_host=GoodVvine@23.97.196.147
+#[ubuntu:vars]
+[azure:vars]
+        ansible_user=GoodVine
+        ansible_ssh_private_key_file=/etc/ansible/.ssh/azure-ubuntu-1.pem
+        ansible_python_interpreter=/usr/bin/python3
+
+ansible-playbook dock-jenk.yml 
+
+На Ubuntu-1:
 sudo apt install openjdk-8-jre-headless
 в папке jenkins   chown -R 1000:1000 .
 
-docker-compose -f /opt/jenkins/docker-compose.yml up -d
 
 Откроем порт 
 iptables -A TCP -p tcp --dport 8080 -j ACCEPT
@@ -261,5 +272,39 @@ docker network connect docknet back
 docker network inspect docknet
 Тест пинга:
 docker exec -ti front ping back
+
+## SonarQube
+
+Установим в docker:
+
+С помощью docker-compose.yml (подключаем все к сети jenkins
+
+docker network connect sonarqube_jenkins jenkins-dock
+
+
+
+Добавим правило в сетевой интерфейс (порт 9000)
+
+Входим ip:9000
+admin admin
+
+Administartion->Security->User-> admin 
+Генерируем токен: 3c4cf8f1f2064d7b0716746e5a665ac0038e05d5
+
+Создаем новый проект: backend
+
+Устанавливаем плагин SonarQube в Jenkins ? а также NodeJS 
+
+Manage Jenkins > Configure System > Add SonarQube
+Добавляем Credential как Secret Text', вносим полученный выше token
+
+В Manage Jenkins > Global Tool Configuration > Add SonarScanner for MSBuild
+
+Новый item - freestyle, укажем Git backend
+
+docker exec -it jenkins-dock bash 
+> cd /var/jenkins_home 
+> wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip 
+> unzip sonar-scanner-cli-4.2.0.1873-linux.zip 
 
 
