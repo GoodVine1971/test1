@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_Ubuntu_1_name": {
+            "defaultValue": "Ubuntu-1",
+            "type": "String"
+        },
+        "disks_Ubuntu_1_disk1_43a9df3e9fd34faaa22ee436a1a25caf_externalid": {
+            "defaultValue": "/subscriptions/286082ee-9003-4877-933d-038fa9e53f0c/resourceGroups/GOODVINE_RG/providers/Microsoft.Compute/disks/Ubuntu-1_disk1_43a9df3e9fd34faaa22ee436a1a25caf",
+            "type": "String"
+        },
+        "networkInterfaces_ubuntu_1226_externalid": {
+            "defaultValue": "/subscriptions/286082ee-9003-4877-933d-038fa9e53f0c/resourceGroups/GoodVine_RG/providers/Microsoft.Network/networkInterfaces/ubuntu-1226",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('virtualMachines_Ubuntu_1_name')]",
+            "location": "westeurope",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_Ubuntu_1_name'), '_disk1_43a9df3e9fd34faaa22ee436a1a25caf')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[parameters('disks_Ubuntu_1_disk1_43a9df3e9fd34faaa22ee436a1a25caf_externalid')]"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_Ubuntu_1_name')]",
+                    "adminUsername": "GoodVine",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/GoodVine/.ssh/authorized_keys",
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC0BtSdwqt15dng3IfbOzvTts8p\r\nAcL9a+NewF/60Eh8USLEBzhxA+2P9+vTcdlTklhnE6z9zXZS3EU9Lb6u0vO+i0Sd\r\nG9CEf11+yZOZf2N/q4dTtazPX5J4n9vgKHmwoRtdmpBtAmCE7QIhbNrcr1dD0e91\r\niRLRRaYXu3XjyZhglE4E6czvI6P5IX3Lm+VCxjqYXfC7BnFxML1NKMG3IBpzN6+Q\r\neCrxVhKKd5OIu8OjQujvGvq8BeHxN8T1KE671bjMYRX0ITm7XuasozM683wC/f0v\r\nJuGebGFSEqTZGF9IQHqqeiujpVDPwvXxeGlbkaZqtBaR7DPzKr1elOf1u7JZmZo7\r\nkqKHVVhsHy9qYN6Op5YpZfJjBdTeBqL/U06Js9nBX1Y2WpZKgT6fgBVQ4cFMycGc\r\nYtlBIyV73hoB4loy0hYO+fNLwS+hBfy/7VD8IdYGo6+rWSDkxRQpzfW2DEzK3Dqb\r\n59kUZiZGo9z12D4zyfQCW/aqmdw+VsY0bDEzEws= generated-by-azure\r\n"
+                                }
+                            ]
+                        },
+                        "provisionVMAgent": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_ubuntu_1226_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

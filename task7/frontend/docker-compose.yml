@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+
+  front:
+    image: frontend
+    container_name: front
+    networks:
+      - front
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+#      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
+
+  back:
+    image: backend
+    container_name: back
+    networks:
+      - front
+    ports:
+      - 8088:80
+      - 444:443
+networks:
+  front:
+    driver: bridge
