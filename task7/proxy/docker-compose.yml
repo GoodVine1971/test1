@@ -17,22 +17,22 @@ services:
       - ./vhost:/etc/nginx/vhost.d
       - ./certs:/etc/nginx/certs
 
-  letsencrypt:
-    image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
-    container_name: ssl
-    volumes:
-      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
-      - ./html:/usr/share/nginx/html
-      - ./dhparam:/etc/nginx/dhparam
-      - ./vhost:/etc/nginx/vhost.d
-      - ./certs:/etc/nginx/certs
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      NGINX_PROXY_CONTAINER: newproxy
-      DEFAULT_EMAIL: goodvine1971@gmail.com
+#  letsencrypt:
+#    image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
+#    container_name: ssl
+#    volumes:
+#      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf:ro
+#      - ./html:/usr/share/nginx/html
+#      - ./dhparam:/etc/nginx/dhparam
+#      - ./vhost:/etc/nginx/vhost.d
+#      - ./certs:/etc/nginx/certs
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+#    environment:
+#      NGINX_PROXY_CONTAINER: newproxy
+#      DEFAULT_EMAIL: goodvine1971@gmail.com
 #        restart: "always"
-    depends_on:
-            - proxy
+#    depends_on:
+#            - proxy
 
   front:
     image: frontend
@@ -58,7 +58,7 @@ services:
     container_name: mongo
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - 27017:27017
