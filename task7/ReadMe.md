@@ -307,4 +307,8 @@ docker exec -it jenkins-dock bash
 > wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip 
 > unzip sonar-scanner-cli-4.2.0.1873-linux.zip 
 
+###########################################################
 
+ExadelBonusDb
+
+db.createUser({user: "root", pwd: "pass", roles:[{role: "readWrite" , db:"ExadelBonusDb"}]});
