@@ -1,0 +1,128 @@
+#server {
+#  listen          80;
+#  server_name back.loc;
+
+ #  access_log /etc/nginx/logs/backend.access;
+ #  error_log /etc/nginx/logs/backend.error error;
+
+#  location / {
+#    proxy_pass http://localhost:5000;
+#	add_header Access-Control-Allow-Origin "*";
+#	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#    proxy_set_header X-Real-IP  $remote_addr;
+#  }
+#}
+
+server {
+ listen 80;
+# server_name localhost;
+# root /usr/share/nginx/html;
+# index index.html;
+location /api {
+        proxy_pass http://localhost:8088/api;
+    }
+    location /management {
+        proxy_pass http://localhost:8088/management;
+    }
+    location /swagger-resources {
+        proxy_pass http://localhost:8088/swagger-resources;
+    }
+    location /v2 {
+       proxy_pass http://localhost:8088/v2;
+    }
+    location /auth {
+       proxy_pass http://localhost:8088/auth;
+    }
+ location /app {
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-NginX-Proxy true;
+   proxy_pass http://back:8088/;
+
+}
+
+ location / {
+   # This would be the directory where your React app's static files are stored at
+   root /usr/share/nginx/html;
+try_files $uri $uri/ /index.html;
+ }
+}
+
+# location /services/m {
+#   proxy_set_header X-Real-IP $remote_addr;
+#   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#   proxy_set_header X-NginX-Proxy true;
+#   proxy_pass http://backend:8080/services/m;
+#   proxy_ssl_session_reuse off;
+#   proxy_set_header Host $http_host;
+#   proxy_cache_bypass $http_upgrade;
+#   proxy_redirect off;
+# }
+#########################################################
+server {
+ listen 80;
+ server_name front.loc;
+ root /usr/share/nginx/html;
+ index index.html;
+ location / {
+   # This would be the directory where your React app's static files are stored at
+add_header Access-Control-Allow-Origin "*";
+   root /usr/share/nginx/html;
+   try_files $uri /index.html;
+ }
+
+ location /app {
+add_header Access-Control-Allow-Origin "*";
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-NginX-Proxy true;
+   proxy_pass http://back.loc:8088;
+ }
+}
+
+server {
+ listen 80;
+ server_name back.loc;
+location /app {
+add_header Access-Control-Allow-Origin "*";
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-NginX-Proxy true;
+   proxy_pass http://back.loc:8088;
+ }
+
+}
+
+erver {
+ listen 80;
+ server_name front.loc;
+ root /usr/share/nginx/html;
+ index index.html;
+ location / {
+   # This would be the directory where your React app's static files are stored at
+add_header Access-Control-Allow-Origin "*";
+   root /usr/share/nginx/html;
+   try_files $uri /index.html;
+ }
+
+ location /app {
+add_header Access-Control-Allow-Origin "*";
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-NginX-Proxy true;
+   proxy_pass http://back.loc:8088;
+ }
+}
+
+server {
+ listen 80;
+ server_name back.loc;
+location /app {
+add_header Access-Control-Allow-Origin "*";
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-NginX-Proxy true;
+   proxy_pass http://back.loc:8088;
+ }
+
+}
