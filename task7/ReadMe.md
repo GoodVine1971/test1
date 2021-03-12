@@ -28,12 +28,11 @@
 
 ### FRONTEND NodeJS
 
-Ставим docker и git: apt-get install git
-
-mkdir frontend
-cd frontend
+Ставим docker и git: 
+В папке frontend:
+```sh
 git clone https://github.com/umilanovich/exadelBonus
-
+```
 Тестовый pipeline:
 
 	pipeline { 
@@ -56,10 +55,10 @@ git clone https://github.com/umilanovich/exadelBonus
 
 
 после создания образа frontend поднимаем контейнеры
-
-docker build -t frontend .
-docker run --name front -d -p 80:80 frontend
-
+```sh
+	docker build -t frontend .  
+	docker run --name front -d -p 80:80 frontend
+```
 При запуске pipeline (и dockerfile) появляется много подвешенных контейнеров. Работаем с ними:
 
 Остановить все контейнеры  
