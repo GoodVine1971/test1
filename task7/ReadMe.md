@@ -88,7 +88,7 @@ docker run  -it --rm  --name back -p 5000:80  backend
 Соединение с ВМ беспарольное, с помощью сертификата Ubuntu-1.pem
 (Для использования в putty преобразовать pem ключ в ppk !)
 
-Ставимм docker и docker-compose:
+##### Ставимм docker и docker-compose:
 
 	sudo apt-get update 
 	sudo apt-get install -y apt-transport-https ca-certificates \
@@ -109,7 +109,7 @@ docker run  -it --rm  --name back -p 5000:80  backend
 	sudo usermod -aG sudo jenkins
 	sudo usermod -aG docker jenkins	
 
-Установка контейнера с jenkins через ansible, установленном на локальной машине:
+##### Установка контейнера с jenkins через ansible, установленном на локальной машине:
 
 В папке /etc/ansible/  ректируем hosts
 [azure]
@@ -121,18 +121,26 @@ docker run  -it --rm  --name back -p 5000:80  backend
         ansible_python_interpreter=/usr/bin/python3
 
 Выполняем плейбук из task7\ansible\dock-jenk.yml
-
+```sh
  ansible-playbook dock-jenk.yml 
+```
+(Позже добавлены роли для установки Docker и необходимых пакетов, чтобы автоматизировать установку необходмого.)
 
-На Ubuntu-1 :
+На ВМ Ubuntu-1 :
+```sh
 sudo apt install openjdk-8-jre-headless
+```
+При необходимости открываем  порт 
+>
+iptables -A TCP -p tcp --dport 8080 -j ACCEPT
+iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+ufw allow 8080  
+
+
 Если  в папке jenkins   chown -R 1000:1000 .
 
 
-Откроем порт 
-iptables -A TCP -p tcp --dport 8080 -j ACCEPT
-iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
-ufw allow 8080
+Откроем
 
 
 
