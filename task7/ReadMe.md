@@ -171,59 +171,69 @@ mv -f frontend/* frontend/.[^.]* . && rmdir frontend/
 В настройках pipeline отмечаем: GitHub hook trigger for GITScm polling
 В webhook вносим 
 http://23.97.196.147:8080/github-webhook/ .
-Не сработало
-Попробуем использовать Trigger builds remotely
+Не сработало. Попробуем использовать Trigger builds remotely  
 Добавили Authentication Token: triggerFrontBuild
 и изменили  webhook на git 
 http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
-Создадми пользователя gituser в jenkins
+Создадми пользователя gituser в jenkins  
 
 В webhook вносим: 
 
-http://gituser:password@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
- Через пароль не работает . Добавляем API token в настройках пользователя gituser
+http://gituser:password@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild  
+
+Через пароль не работает . Добавляем API token в настройках пользователя gituser
  
- ![Токен gituser:](./images/gituser.jpg)
+![Токен gituser:](./images/gituser.jpg)
 
 http://gituser:117f7baccf16e2f8c82443XXXXXXXXX@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
 Так работает.
  
+![webhook:](./images/webhook.jpg) 
  
- Если происходит много commit, то  может возникнуть большая нагрузка, для этого вместо webhook использовать poll SCM
- Расписание:  H */3 * * *   (каждые 3 часа, Р вместо 0, чтобы не запускалось в 3:00, 6:00, а произвольное время, н-р 3:21
+ Если происходит много commit, то  может возникнуть большая нагрузка, для этого вместо webhook использовать poll SCM  
+ Расписание:  H */3 * * *   (каждые 3 часа, H вместо 0, чтобы не запускалось в 3:00, 6:00, а произвольное время, н-р 3:21
  
  
 ++++++++++++++++++++++++++++++++++
 
 
-# Container Registry
-https://docs.microsoft.com/ru-ru/azure/container-registry/container-registry-tutorial-prepare-registry
+### Container Registry
 
-Сначала нужно установить Azure CLI : https://docs.microsoft.com/ru-ru/cli/azure/install-azure-cli
+Для отправки готовых образов контейнеров в registry воспользуемся руководством: 
+https://docs.microsoft.com/ru-ru/azure/container-registry/container-registry-tutorial-prepare-registry  
+  
+Сначала нужно установить Azure CLI как указано здесь: https://docs.microsoft.com/ru-ru/cli/azure/install-azure-cli  
 
+Воспользуемся установкой  Azure CLI в docker контейнере  
 
-Открываем https://microsoft.com/devicelogin   или https://aka.ms/devicelogin вводим полученный код: C4WVU56WC 
+Создаем Реестр GoodVine  контейнеров Azure  нашей Resource Group.  (GoodVone_RG)  
 
-Создаем Реестр GoodVine  контейнеров Azure  нашей Resource Group.  (GoodVone_RG)
+Перейдем в новый реестр контейнеров на портале Azure и в разделе Параметры выберем Ключи доступа. В разделе Пользователь-администратор выберем Включить.  
 
-Перейдите в новый реестр контейнеров на портале Azure и в разделе Параметры выберите Ключи доступа. В разделе Пользователь-администратор выберите Включить
+###### Запуск контейнера с Azure CLI
 
-Запуск контейнера с Azure CLI 
+docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft.com/azure-cli  /bin/bash
+здесь --rm, чтобы Docker автоматически очищал контейнер и удалял файловую систему при выходе из контейнера
 
-docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft.com/azure-cli   здесь --rm, чтобы Docker автоматически очищал контейнер и удалял файловую систему при выходе из контейнера
-
-Затем? чтобы можно было работать с image на хосте:
+Затем, чтобы можно было работать с image на хосте добавим в терминале нашего контейнера:
+```sh
 apk --no-cache add docker
+```
 
-Теперь пользоваться docker из контейнера (н-р docker image - все образы на хосте)
+Теперь можно пользоваться docker'ом из контейнера (н-р docker image - все образы на хосте)
 
-Входим: az login
-Открываем https://microsoft.com/devicelogin   или https://aka.ms/devicelogin вводим полученный код: C4WVU56WC 
+В терминале вводим
+```sh
+az login  
+``` 
+Открываем в браузере https://microsoft.com/devicelogin   или https://aka.ms/devicelogin вводим полученный код: C4WVU56WC 
 
 Входим в реестр:
+```sh
 az acr login --name goodvine   
+```
 _______________________________
 
 
