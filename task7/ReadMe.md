@@ -7,13 +7,12 @@
    - Виртуальная машина
    - Учетная запись Azure Cosmos DB (для Mongodb)
    - Реестр контейнеров
-3. Установлен Docker
+3. Установлен Docker на ВМ
 4. Установлен Jenkins  (с помощью Ansible)
 5. Настроен pipeline Frontend (build, deploy в Azure Container Registry)
 6. Настроен pipeline Backend (build, deploy в Azure Container Registry)
 7. Настроен Frestyle, зависящий от Frontend и Backend, для запуска reverse proxy с latest контейнерами
 8. Архивация и восстановление базы данных средствами Azure Cosmos DB
-
 
 Что не удалось:
 
@@ -25,13 +24,17 @@
 4. Сделать безошибочную проверку кода  (SonaQube + Jankins).
 
 
-Ставим docker и git: apt-get install git
+## Локальное тестирование
 
-# FRONTEND
+### FRONTEND NodeJS
+
+Ставим docker и git: apt-get install git
 
 mkdir frontend
 cd frontend
 git clone https://github.com/umilanovich/exadelBonus
+
+Тестовый pipeline:
 
 pipeline { 
     agent any
@@ -39,23 +42,18 @@ pipeline {
 stages {
     stage('Display') {
         steps {
-            
-            //sh 'mkdir exadelBonus'
-            //sh 'cd exadelBonus'
             git branch: 'develop', url: 'https://github.com/umilanovich/exadelBonus'
-            //sh 'cd ..'
             sh 'cp -f /home/ansclient/frontend/Dockerfile . '
             sh 'cp -f /home/ansclient/frontend/.dockerignore . '
-            //sh 'cp -f /home/ansclient/frontend/nginx.conf . '
+            sh 'cp -f /home/ansclient/frontend/nginx.conf . '
             //sh 'mkdir frontend'
             //sh 'docker stop front'
             //sh 'docker rm front'
             sh 'docker build -t frontend .'
-            //sh 'ls'
-         }
+        }
     }
 }
-}
+
 
 после создания образа frontend поднимаем контейнеры
 
@@ -72,7 +70,7 @@ docker run --name front -d -p 80:80 frontend
 > docker system prune -a  
 
 
-# Backend   .Net 
+### Backend   .Net 
 
 Настраиваем Dockerfile и запускаем:
 
@@ -80,15 +78,13 @@ docker build -t backend .
 docker run  -it --rm  --name back -p 5000:80  backend
 
 
-
 #  ASURE
 
+После регистрации создаем resourse group
+Далее идет установка ВМ, Virtual Network
 
-Получить pem ключ, преобразовать в ppk
-
-Подключение в putty:
-	ssh -i d:\Apache\keys\Ubuntu-1.pem GoodVine@23.97.196.147
-
+Соединение с ВМ песпарольное, с помощью сертификата Ubuntu-1.pem
+Для использования в putty преобразовать pem ключ в ppk
 
 Ставимм docker и docker-compose:
 
@@ -104,15 +100,15 @@ docker run  -it --rm  --name back -p 5000:80  backend
 	sudo chmod +x /usr/local/bin/docker-compose   
 	
 Добавим пользователя jenkins и вводим в группы docker и sudo
-
 	sudo useradd -m -s /bin/bash jenkins	
 	sudo passwd jenkins
 	sudo usermod -aG docker $USER
 	sudo usermod -aG sudo jenkins
 	sudo usermod -aG docker jenkins	
 
-Установка контейнера с jenkins через ansible? установленном на локальной машине:
-В папке /etc/ansible/  hosts
+Установка контейнера с jenkins через ansible, установленном на локальной машине:
+
+В папке /etc/ansible/  ректируем hosts
 [azure]
         ubuntu-1 ansible_host=GoodVvine@23.97.196.147
 #[ubuntu:vars]
@@ -121,11 +117,13 @@ docker run  -it --rm  --name back -p 5000:80  backend
         ansible_ssh_private_key_file=/etc/ansible/.ssh/azure-ubuntu-1.pem
         ansible_python_interpreter=/usr/bin/python3
 
-ansible-playbook dock-jenk.yml 
+Выполняем плейбук из task7\ansible\dock-jenk.yml
 
-На Ubuntu-1:
+ ansible-playbook dock-jenk.yml 
+
+На Ubuntu-1 :
 sudo apt install openjdk-8-jre-headless
-в папке jenkins   chown -R 1000:1000 .
+Если  в папке jenkins   chown -R 1000:1000 .
 
 
 Откроем порт 
