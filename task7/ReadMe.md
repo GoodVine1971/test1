@@ -13,6 +13,7 @@
 6. Настроен pipeline Backend (build, deploy в Azure Container Registry)
 7. Настроен Frestyle, зависящий от Frontend и Backend, для запуска reverse proxy с latest контейнерами
 8. Архивация и восстановление базы данных средствами Azure Cosmos DB
+9. Опрос Git раз в 3 часа. Сначала было сделано по WebHook, но из-за частого commit изменено 
 
 Что не удалось:
 
@@ -29,7 +30,8 @@
 ### FRONTEND NodeJS
 
 Ставим docker и git: 
-В папке frontend:
+В папке frontend добавлены Dockerfile, .dockerignore, nginx.conf:
+
 ```sh
 git clone https://github.com/umilanovich/exadelBonus
 ```
@@ -56,11 +58,12 @@ git clone https://github.com/umilanovich/exadelBonus
 
 после создания образа frontend поднимаем контейнеры
 ```sh
-	docker build -t frontend .  
-	docker run --name front -d -p 80:80 frontend
+docker build -t frontend .  
+docker run --name front -d -p 80:80 frontend
 ```
-При запуске pipeline (и dockerfile) появляется много подвешенных контейнеров. Работаем с ними:
+При запуске pipeline (и dockerfile) появляется много подвешенных контейнеров. Работаем с ними:  
 
+>  
 Остановить все контейнеры  
 > docker stop $(docker ps -a -q)  
 Удаление подвешенных образов  
@@ -72,18 +75,18 @@ git clone https://github.com/umilanovich/exadelBonus
 ### Backend   .Net 
 
 Настраиваем Dockerfile и запускаем:
-
+```sh
 docker build -t backend .
 docker run  -it --rm  --name back -p 5000:80  backend
-
+```
 
 #  ASURE
 
 После регистрации создаем resourse group
 Далее идет установка ВМ, Virtual Network
 
-Соединение с ВМ песпарольное, с помощью сертификата Ubuntu-1.pem
-Для использования в putty преобразовать pem ключ в ppk
+Соединение с ВМ беспарольное, с помощью сертификата Ubuntu-1.pem
+(Для использования в putty преобразовать pem ключ в ppk !)
 
 Ставимм docker и docker-compose:
 
@@ -98,7 +101,8 @@ docker run  -it --rm  --name back -p 5000:80  backend
 	sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose 
 	sudo chmod +x /usr/local/bin/docker-compose   
 	
-Добавим пользователя jenkins и вводим в группы docker и sudo
+Добавим пользователя jenkins и вводим в группы docker и sudo:  
+
 	sudo useradd -m -s /bin/bash jenkins	
 	sudo passwd jenkins
 	sudo usermod -aG docker $USER
