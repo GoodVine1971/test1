@@ -132,8 +132,8 @@ sudo apt install openjdk-8-jre-headless
 ```
 При необходимости открываем  порт 
 >
-iptables -A TCP -p tcp --dport 8080 -j ACCEPT
-iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+iptables -A TCP -p tcp --dport 8080 -j ACCEPT  
+iptables -I INPUT -p tcp --dport 8080 -j ACCEPT  
 ufw allow 8080  
 
 Если собираемся использовать user jenkins в билд-агенте, то в папке jenkins : sudo chown -R 1000:1000 .  
@@ -159,38 +159,35 @@ svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend
 ```sh
 mv -f frontend/* frontend/.[^.]* . && rmdir frontend/
 ```  
+Так как сборка NodeJS оказывает большую нагрузку желательно включить запрещение: Do not allow concurrent builds
+ или в pipeline:
+ 
+	options {
+	disableConcurrentBuilds()
+	}
+ 
+##### Настраиваем webhook в github
 
-
-pipeline:
-sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend'
-sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
-
-
-
-
-Настраиваем webhook в github и в настройках pipeline отмечаем GitHub hook trigger for GITScm polling
-
+В настройках pipeline отмечаем: GitHub hook trigger for GITScm polling
+В webhook вносим 
 http://23.97.196.147:8080/github-webhook/ .
 Не сработало
 Попробуем использовать Trigger builds remotely
-Добавили TOKEN: triggerFrontBuild
+Добавили Authentication Token: triggerFrontBuild
 и изменили  webhook на git 
 http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
 Создадми пользователя gituser в jenkins
 
-http://username:password@jenkins.domain.tld/github-webhook/
-http://gituser:1@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
+В webhook вносим: 
+
+http://gituser:password@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
  Через пароль не работает . Добавляем API token в настройках пользователя gituser
-117f7baccf16e2f8c8244376949b3eb322
-http://gituser:117f7baccf16e2f8c8244376949b3eb322@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
- Ура пошло!
+
+http://gituser:117f7baccf16e2f8c82443XXXXXXXXX@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
+
+Так работает.
  
- Включить запрещение Do not allow concurrent builds
- или в pipeline 
- options {
-disableConcurrentBuilds()
-}
  
  Если происходит много commit, то  может возникнуть большая нагрузка, для этого вместо webhook использовать poll SCM
  Расписание:  H */3 * * *   (каждые 3 часа, Р вместо 0, чтобы не запускалось в 3:00, 6:00, а произвольное время, н-р 3:21
