@@ -183,6 +183,8 @@ http://23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
 http://gituser:password@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
  Через пароль не работает . Добавляем API token в настройках пользователя gituser
+ 
+ ![Токен gituser:](./images/gituser.jpg)
 
 http://gituser:117f7baccf16e2f8c82443XXXXXXXXX@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
