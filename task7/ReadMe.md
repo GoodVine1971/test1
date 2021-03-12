@@ -136,24 +136,31 @@ iptables -A TCP -p tcp --dport 8080 -j ACCEPT
 iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 ufw allow 8080  
 
+Если собираемся использовать user jenkins в билд-агенте, то в папке jenkins : sudo chown -R 1000:1000 .  
+Но можно использовать основного user'а (указываем домашнюю папку этого user в билд-агенте и настраиваем ssh + Credentials в Jenkins)
 
-Если  в папке jenkins   chown -R 1000:1000 .
+##### Настройки pipeline
 
-
-Откроем
-
-
-
-Настройки pipeline
-
-Для скачивания только папки из git установим пакет
+Поскольку у разработчиков свой Git, а нам нужны дополнительные файлы для build, их расположим в собственном репозитории по папкам (frontend, backend и.т.д.)
+Для скачивания нужной папки из git, чтобы не тащить весь репозиторий установим пакет
+```sh
 sudo apt install subversion -y
-
-svn ls https://github.com/GoodVine1971/test1/trunk/task7/frontend       проверить, а потом
-svn checkout https://github.com/GoodVine1971/test1/trunk/task7/frontend   или лучше (так только папка)
+```
+Проверим наличие нужной папки:
+```sh
+svn ls https://github.com/GoodVine1971/test1/trunk/task7/frontend     ###### все файлы
+svn checkout https://github.com/GoodVine1971/test1/trunk/task7/frontend   ###### или так (только папка)
+```
+С помощью команды:
+```sh
 svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend
-А затем перносим содержимое frontend в корень
+```
+скачиваем необходимую папку, а затем перносим содержимое frontend в корень
+```sh
 mv -f frontend/* frontend/.[^.]* . && rmdir frontend/
+```  
+
+
 pipeline:
 sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/frontend'
 sh 'mv -f frontend/* frontend/.[^.]* . && rmdir frontend/'
