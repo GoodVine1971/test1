@@ -36,23 +36,23 @@ git clone https://github.com/umilanovich/exadelBonus
 
 Тестовый pipeline:
 
-pipeline { 
-    agent any
+	pipeline { 
+		agent any
 
-stages {
-    stage('Display') {
-        steps {
-            git branch: 'develop', url: 'https://github.com/umilanovich/exadelBonus'
-            sh 'cp -f /home/ansclient/frontend/Dockerfile . '
-            sh 'cp -f /home/ansclient/frontend/.dockerignore . '
-            sh 'cp -f /home/ansclient/frontend/nginx.conf . '
-            //sh 'mkdir frontend'
-            //sh 'docker stop front'
-            //sh 'docker rm front'
-            sh 'docker build -t frontend .'
-        }
-    }
-}
+	stages {
+		stage('Display') {
+			steps {
+				git branch: 'develop', url: 'https://github.com/umilanovich/exadelBonus'
+				sh 'cp -f /home/ansclient/frontend/Dockerfile . '
+				sh 'cp -f /home/ansclient/frontend/.dockerignore . '
+				sh 'cp -f /home/ansclient/frontend/nginx.conf . '
+				//sh 'mkdir frontend'
+				//sh 'docker stop front'
+				//sh 'docker rm front'
+				sh 'docker build -t frontend .'
+			}
+		}
+	}
 
 
 после создания образа frontend поднимаем контейнеры
@@ -62,12 +62,12 @@ docker run --name front -d -p 80:80 frontend
 
 При запуске pipeline (и dockerfile) появляется много подвешенных контейнеров. Работаем с ними:
 
-Остановить все контейнеры
-> docker stop $(docker ps -a -q)
-Удаление подвешенных образов
-> docker rmi $(docker images -f dangling=true -q)
-очистить кэш docker
-> docker system prune -a  
+Остановить все контейнеры  
+> docker stop $(docker ps -a -q)  
+Удаление подвешенных образов  
+> docker rmi $(docker images -f dangling=true -q)  
+очистить кэш docker  
+> docker system prune -a   
 
 
 ### Backend   .Net 
