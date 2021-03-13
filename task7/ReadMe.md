@@ -23,7 +23,7 @@
 2. Ssl сертификация. Если для frontend доменного имени задать letsencrypt сертификат автоматически удалось с помощью reverse proxy и контейнера letsencrypt-nginx-proxy-companion, то для внутреннего контейнера backend этот способ не подходит. А использование http для обращения к backend из https вызывает блокировку в браузере (смена протокола). 
 3. Обращение к backend по имени контейнера (или виртуального хоста). Используется <имя или ip>:port, где port , на котором работает backend (открыт наружу) 
 4. Сделать безошибочную проверку кода  (SonaQube + Jankins).
-
+5. Логирование и мониторинг
 
 ## Локальное тестирование
 
@@ -77,7 +77,7 @@ docker run --name front -d -p 80:80 frontend
 Настраиваем Dockerfile и запускаем:
 ```sh
 docker build -t backend .
-docker run  -it --rm  --name back -p 5000:80  backend
+docker run  -it --rm  --name back -p 8082:80  backend
 ```
 
 #  ASURE
@@ -359,6 +359,13 @@ docker exec -it jenkins-dock bash
 
 ###########################################################
 
-ExadelBonusDb
+
+use admin
+switched to db admin
+> db.auth('admin', 'pass');
+use ExadelBonusDb
 
 db.createUser({user: "admin", pwd: "pass", roles:[{role: "readWrite" , db:"ExadelBonusDb"}]});
+
+ConneсtString:
+mongodb://admin:pass@mongo:27017
