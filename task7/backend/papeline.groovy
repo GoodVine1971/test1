@@ -28,7 +28,8 @@ stages {
             //sh 'cp -f /home/ansclient/backend/.dockerignore . '
             sh 'svn export --force https://github.com/GoodVine1971/test1/trunk/task7/backend'
             sh 'mv -f backend/* backend/.[^.]* . && rmdir backend/'
-            sh "sed -i -e 's/^.*ConnectionString.*/${ConnectionString}/g' ExadelBonusPlus.WebApi/appsettings.json"
+            //sh "sed -i -e 's/^.*ConnectionString.*/${ConnectionString}/g' ExadelBonusPlus.WebApi/appsettings.json"
+            sh 'mv -f appsettings.json ./ExadelBonusPlus.WebApi'
             }    
         
     }
@@ -56,7 +57,9 @@ stages {
                      sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID'
                      sh 'az account set -s $AZURE_SUBSCRIPTION_ID'
                      sh 'az acr login --name $CONTAINER_REGISTRY'
+					 sh 'docker tag backend goodvine.azurecr.io/backend:latest'
 					 sh 'docker tag backend goodvine.azurecr.io/backend:v$TAG'
+                     sh 'docker push goodvine.azurecr.io/backend:latest'
                      sh 'docker push goodvine.azurecr.io/backend:v$TAG'
                 }    
      	

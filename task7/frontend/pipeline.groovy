@@ -19,7 +19,8 @@ stages {
     }
     stage('Get Dockerfile and change url to backend') {
         environment {
-        newUrl = 'apiUrl: "http://back.loc", '
+  //    newUrl = 'apiUrl: "http://exadel-bonus.westeurope.cloudapp.azure.com:8082", '    
+        newUrl = 'apiUrl: "/app", '
         apiUrl = newUrl.replace("/", "\\/")
         }
         steps {
@@ -72,7 +73,9 @@ stages {
                             //sh 'az acr build --image $REPO/$IMAGE_NAME:$TAG --registry $CONTAINER_REGISTRY --file Dockerfile . '
                            // sh 'docker push goodvine.azurecr.io/frontend:v$TAG'
                           //  sh 'docker login  goodvine.azurecr.io -u goodvine'
+                          sh 'docker tag frontend goodvine.azurecr.io/frontend:latest'
                           sh 'docker tag frontend goodvine.azurecr.io/frontend:v$TAG'
+                          sh 'docker push goodvine.azurecr.io/frontend::latest'
                           sh 'docker push goodvine.azurecr.io/frontend:v$TAG'
                         }    
      //   sh 'which az'

@@ -212,9 +212,11 @@ https://docs.microsoft.com/ru-ru/azure/container-registry/container-registry-tut
 
 Перейдем в новый реестр контейнеров на портале Azure и в разделе Параметры выберем Ключи доступа. В разделе Пользователь-администратор выберем Включить.  
 
-###### Запуск контейнера с Azure CLI
+#### Запуск контейнера с Azure CLI
 
+```sh
 docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft.com/azure-cli  /bin/bash
+```
 здесь --rm, чтобы Docker автоматически очищал контейнер и удалял файловую систему при выходе из контейнера
 
 Затем, чтобы можно было работать с image на хосте добавим в терминале нашего контейнера:
@@ -234,71 +236,66 @@ az login
 ```sh
 az acr login --name goodvine   
 ```
-_______________________________
 
-
-Можно подключиться без CLI 
-> docker login goodvine.azurecr.io -u goodvine -p password  , где password из раздела ключи в настройке Registry
-
+Можно подключиться без CLI непосредственно командой docker:
+```sh
+ docker login goodvine.azurecr.io -u goodvine -p password  , где password из раздела ключи в настройке Registry
+```
 Присвоим тэг:
-
+```sh
 docker tag frontend goodvine.azurecr.io/frontend:v1
-
+```
 Отправим в registry :
-
+```sh
 docker push goodvine.azurecr.io/frontend:v1 
-
+```
 Просмотреть registry :
-
+```sh
 az acr repository list --name goodvine --output table
-
+```
 удалить образ
-
+```sh
 az acr repository delete --name goodvine --image frontend:v1
-
+```
 Создать в registry образ из существующего с другим тэгом:
-
+```sh
 az acr import -n goodvine --force --source goodvine.azurecr.io/myimage:latest -t myimage:retagged 
 az acr import -n goodvine --force --source goodvine.azurecr.io/frontend:v12 -t frontend:latest
-
+```
 Удалить тэг:
+```sh
 az acr repository untag -n goodvine --image frontend:v12
+```
 удалить untagged images:
-
-PURGE_CMD="acr purge --filter 'frontend:.*' \
-  --untagged --ago 1d"
-
-az acr run \
-  --cmd "$PURGE_CMD" \
-  --registry goodvine \
-  /dev/null
-  
-  
+```sh  
 az acr run --registry goodvine --cmd "purge --filter 'frontend:.*'  --untagged" 
+```
 Удалить манифест и все тэги  для image frontend
+```sh
 az acr repository delete -n goodvine --image frontend:v12
+```
 
-_______________________________
+#### Задать credentials для Jenkins 
 
-Задать credentials для Jenkins 
-
-Create a service principal using Az CLI:
-
-    az ad sp create-for-rbac
-	
-	Получим
+Для автоматического входа в azure registry создадим службу:  service principal using Az CLI:
+```sh
+az ad sp create-for-rbac
+```	
+	Получим что-то похожее:
   "appId": "999999999-c740-48a8-90aa-0000000",
   "displayName": "azure-cli-2021-03-03-17-35-27",
   "name": "http://azure-cli-2021-03-03-17-35-27",
   "password": "555555mBQpyxKjXC.5X.00000000000000",
   "tenant": "9999999-5a22-440f-a0a9-0000000000"
 	
-Добавим credential  Username with password и введем следующее :
+Создадим в Jenkins credential:  Username with password и введем следующее :
 
 Username - The appId of the service principal created.
 Password - The password of the service principal created.
-ID - Credential identifier such as AzureServicePrincipal
-	
+ID - Credential identifier, например: Principal
+
+В pipeline создаем environment и создаем agent docker с образом azure-cli и step: withCredentials([usernamePassword(credentialsId: 'Principal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) 
+
 _______________________________
 
 ##Proxy
@@ -308,56 +305,10 @@ Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remot
 
 Добавление обратного proxy сервера:
 
-Добавим новую сеть:
-docker network create docknet
+Скачиваем подготовленный docker-compose.yml ссо своего репозитория: svn export --force https://github.com/GoodVine1971/test1/trunk/task7/proxy 
+В нем запускаются frontend, backend, reverse proxy и mongodb. В nginx-proxy.conf указываются необходимые server_name (доменное имя, ip и localhost), в папке vhost - соответствующие по именам файлы, в которых иде proxyPass на наконтейнер back для адресов, содержащих /app. Таким образом из браузера вызывается backend с тем же доменным именем, что и frontend.
 
-И в hosts сайты front.loc и back.loc
-sudo sed -i "2i127.0.0.1\tfront.loc" /etc/hosts
-sudo sed -i "2i127.0.0.1\tback.loc" /etc/hosts
-
-docker network connect docknet front
-docker network connect docknet back
-
-проверим:
-docker network inspect docknet
-Тест пинга:
-docker exec -ti front ping back
-
-## SonarQube
-
-Установим в docker:
-
-С помощью docker-compose.yml (подключаем все к сети jenkins
-
-docker network connect sonarqube_jenkins jenkins-dock
-
-
-
-Добавим правило в сетевой интерфейс (порт 9000)
-
-Входим ip:9000
-admin admin
-
-Administartion->Security->User-> admin 
-Генерируем токен: 3c4cf8f1f2064d7b0716746e5a665ac0038e05d5
-
-Создаем новый проект: backend
-
-Устанавливаем плагин SonarQube в Jenkins ? а также NodeJS 
-
-Manage Jenkins > Configure System > Add SonarQube
-Добавляем Credential как Secret Text', вносим полученный выше token
-
-В Manage Jenkins > Global Tool Configuration > Add SonarScanner for MSBuild
-
-Новый item - freestyle, укажем Git backend
-
-docker exec -it jenkins-dock bash 
-> cd /var/jenkins_home 
-> wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip 
-> unzip sonar-scanner-cli-4.2.0.1873-linux.zip 
-
-###########################################################
+### База данных в docker
 
 
 use admin
@@ -369,3 +320,11 @@ db.createUser({user: "admin", pwd: "pass", roles:[{role: "readWrite" , db:"Exade
 
 ConneсtString:
 mongodb://admin:pass@mongo:27017
+
+
+## SonarQube
+
+см здесь: https://github.com/GoodVine1971/test1/tree/master/task7/SonarQube
+
+
+

@@ -38,6 +38,7 @@ services:
     image: frontend
     container_name: front
     environment:
+ #     exadel-bonus.westeurope.cloudapp.azure.com 23.97.196.147 изменить в папке vhost исоответствующие имена файлов
       VIRTUAL_HOST: front.loc, exadel-bonus.westeurope.cloudapp.azure.com, localhost, 23.97.196.147
 #      LETSENCRYPT_HOST: front.loc
     ports:
