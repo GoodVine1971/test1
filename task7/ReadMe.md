@@ -1,6 +1,6 @@
 # Выполнение задания Task7 (Cloud)
 
-![C[tvf:](./images/task7.jpg) 
+![Блок-схема:](./images/task7.jpg) 
 
 
 Что сделано:
