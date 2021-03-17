@@ -10,23 +10,23 @@
    - Виртуальная машина
    - Учетная запись Azure Cosmos DB (для Mongodb)
    - Реестр контейнеров
+   - Экземпляры контейнеров
 3. Установлен Docker на ВМ
 4. Установлен Jenkins  (с помощью Ansible)
-5. Настроен pipeline Frontend (build, deploy в Azure Container Registry)
-6. Настроен pipeline Backend (build, deploy в Azure Container Registry)
+5. Настроен pipeline Frontend - NodeJS (build, deploy в Azure Container Registry)
+6. Настроен pipeline Backend - .Net (build, deploy в Azure Container Registry)
 7. Настроен Frestyle, зависящий от Frontend и Backend, для запуска reverse proxy с latest контейнерами
 8. Архивация и восстановление базы данных средствами Azure Cosmos DB
 9. Опрос Git раз в 3 часа. Сначала было сделано по WebHook, но из-за частого commit изменено 
 
 Что не удалось:
 
-1. Из-за особенностей кеширования поздно выяснилось, что при смене адресов на свои, продолжала использоваться база разработчиков.
+1. Из-за кеширования поздно выяснилось, что при смене адресов на свои, продолжала использоваться база разработчиков.
 Требование обязательного ssl для коннекта с базой данных в azure выполнить не удалось, т.к. требует дополнительно настройки со стороны разработчиков приложения .Net
 Пришлось запустить Mongodb в контейнере.
-2. Ssl сертификация. Если для frontend доменного имени задать letsencrypt сертификат автоматически удалось с помощью reverse proxy и контейнера letsencrypt-nginx-proxy-companion, то для внутреннего контейнера backend этот способ не подходит. А использование http для обращения к backend из https вызывает блокировку в браузере (смена протокола). 
-3. Обращение к backend по имени контейнера (или виртуального хоста). Используется <имя или ip>:port, где port , на котором работает backend (открыт наружу) 
-4. Сделать безошибочную проверку кода  (SonaQube + Jankins).
-5. Логирование и мониторинг
+2. Ssl сертификация. Для frontend доменного имени задать letsencrypt сертификат автоматически удалось с помощью reverse proxy и контейнера letsencrypt-nginx-proxy-companion. Использование http для обращения к backend из https вызывает блокировку в браузере (смена протокола). 
+3. Сделать безошибочную проверку кода  (SonaQube + Jankins).
+4. Логирование и мониторинг
 
 ## Локальное тестирование
 
@@ -71,7 +71,7 @@ docker run --name front -d -p 80:80 frontend
 > docker stop $(docker ps -a -q)  
 Удаление подвешенных образов  
 > docker rmi $(docker images -f dangling=true -q)  
-очистить кэш docker  
+очистить кэш docker (удалит все)
 > docker system prune -a   
 
 
