@@ -31,4 +31,5 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /home/node/app/dist /usr/share/nginx/html
 EXPOSE 80
+EXPOSE 443
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

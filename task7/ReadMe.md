@@ -95,7 +95,7 @@ docker run  -it --rm  --name back -p 8082:80  backend
 
 	sudo apt-get update 
 	sudo apt-get install -y apt-transport-https ca-certificates \
-	curl gnupg-agent software-properties-common 
+	curl gnupg-agent software-properties-common subversion
 
 	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
 	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" 
@@ -140,7 +140,7 @@ iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 ufw allow 8080  
 
 Если собираемся использовать user jenkins в билд-агенте, то в папке jenkins : sudo chown -R 1000:1000 .  
-Но можно использовать основного user'а (указываем домашнюю папку этого user в билд-агенте и настраиваем ssh + Credentials в Jenkins)
+Но можно использовать основного user'а (указываем домашнюю папку этого user в билд-агенте и настраиваем ssh + Credentials в Jenkins - PrivatKey из pem)
 
 ##### Настройки pipeline
 
@@ -189,7 +189,7 @@ http://gituser:password@23.97.196.147:8080/job/frontend/build?token=triggerFront
  
 ![Токен gituser:](./images/gituser.jpg)
 
-http://gituser:117f7baccf16e2f8c82443XXXXXXXXX@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
+http://гитюзер:117f7baccf16e2f8c82443XXXXXXXXX@23.97.196.147:8080/job/frontend/build?token=triggerFrontBuild
 
 Так работает.
  
