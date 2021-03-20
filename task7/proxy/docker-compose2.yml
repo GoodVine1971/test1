@@ -34,8 +34,8 @@ services:
     environment:
  #     exadel-bonus.westeurope.cloudapp.azure.com 23.97.196.147 изменить
  #     в папке vhost исоответствующие имена файлов
-      VIRTUAL_HOST: front.loc, exadel.westeurope.cloudapp.azure.com, localhost
-      LETSENCRYPT_HOST: exadel.westeurope.cloudapp.azure.com
+      VIRTUAL_HOST: front.loc, bonus.westeurope.cloudapp.azure.com, localhost
+      LETSENCRYPT_HOST: bonus.westeurope.cloudapp.azure.com
     ports:
       - 8081:80
       - 444:443
