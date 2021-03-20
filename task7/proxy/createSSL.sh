@@ -4,3 +4,21 @@ openssl pkcs12 -export -out localhost.pfx -inkey localhost.key -in localhost.crt
 
  docker run -p 445:443 -p 8082:80 --name back -e ASPNETCORE_URLS="https://+:443;http://+:80" -e ASPNETCORE_HTTPS_PORT=443 -e ASPNETCORE_Kestrel__Certificates__Default__Password="CHANGETHISSECRETKEY" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx -v ~/proxy/https:/https/ -d backend
  
+ 
+ 
+ "HttpsInlineCertFile": {
+    "Url": "https://*:443",
+    "Certificate": {
+      "Path": "/https/localhost.pfx",
+      "Password": "CHANGETHISSECRETKEY",
+      "AllowInvalid": "true"
+    }
+  }
+},
+
+"Certificates": {
+  "Default": {
+    "Path": "/https/localhost.pfx",
+    "Password": "CHANGETHISSECRETKEY"
+  }
+}

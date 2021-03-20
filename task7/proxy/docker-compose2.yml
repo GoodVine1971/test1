@@ -13,7 +13,6 @@ services:
       - ./dhparam:/etc/nginx/dhparam
       - ./vhost:/etc/nginx/vhost.d
       - ./certs:/etc/nginx/certs
-
   letsencrypt:
     image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
     container_name: ssl
@@ -27,30 +26,38 @@ services:
     environment:
       NGINX_PROXY_CONTAINER: proxy
       DEFAULT_EMAIL: goodvine1971@gmail.com
-#        restart: "always"
-#    depends_on:
+#        restart: "always" depends_on:
 #            - proxy
-
   front:
     image: frontend
     container_name: front
     environment:
- #     exadel-bonus.westeurope.cloudapp.azure.com 23.97.196.147 изменить в папке vhost исоответствующие имена файлов
+ #     exadel-bonus.westeurope.cloudapp.azure.com 23.97.196.147 изменить
+ #     в папке vhost исоответствующие имена файлов
       VIRTUAL_HOST: front.loc, exadel.westeurope.cloudapp.azure.com, localhost
       LETSENCRYPT_HOST: exadel.westeurope.cloudapp.azure.com
     ports:
       - 8081:80
       - 444:443
-
   back:
     image: backend
     container_name: back
     environment:
-      VIRTUAL_HOST: back
+      - VIRTUAL_HOST=back
+#      - ASPNETCORE_HTTPS_PORT=443
+#      - ASPNETCORE_URLS: https://+:443;http://+:80
+#      - "ASPNETCORE_URLS=https://+;http://+"
+#      - Kestrel__Certificates__Default__Path=/https/aspnetap.pfx
+#      - Kestrel__Certificates__Default__Password=CHANGETHISSECRETKEY
+#      - ASPNETCORE_Kestrel__Certificates__Default__Password=CHANGETHISSECRETKEY
+#      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetap.pfx
+
 #      LETSENCRYPT_HOST: back.loc
     ports:
       - 8082:80
-      - 445:443
+      - 8083:443
+    volumes:
+      - ./https:/https/
   mongo:
     hostname: mongo
     container_name: mongo
@@ -60,8 +67,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - 27017:27017
-#    network_mode: "mongo"
-#    restart: unless-stopped
-#    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+#    network_mode: "mongo" restart: unless-stopped entrypoint: [
+#    "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
     volumes:
       - /opt/mongodb/database:/data/db
