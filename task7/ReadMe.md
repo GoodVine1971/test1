@@ -18,15 +18,15 @@
 7. Настроен Frestyle, зависящий от Frontend и Backend, для запуска reverse proxy с latest контейнерами
 8. Архивация и восстановление базы данных средствами Azure Cosmos DB
 9. Опрос Git раз в 3 часа. Сначала было сделано по WebHook, но из-за частого commit изменено 
+10. Логировани, мониторинг Grafana + Prometeus. Используем проект https://github.com/stefanprodan/dockprom
 
 Что не удалось:
 
 1. Из-за кеширования поздно выяснилось, что при смене адресов на свои, продолжала использоваться база разработчиков.
 Требование обязательного ssl для коннекта с базой данных в azure выполнить не удалось, т.к. требует дополнительно настройки со стороны разработчиков приложения .Net
 Пришлось запустить Mongodb в контейнере.
-2. Ssl сертификация. Для frontend доменного имени задать letsencrypt сертификат автоматически удалось с помощью reverse proxy и контейнера letsencrypt-nginx-proxy-companion. Использование http для обращения к backend из https вызывает блокировку в браузере (смена протокола). 
-3. Сделать безошибочную проверку кода  (SonaQube + Jankins).
-4. Логирование и мониторинг
+2. Сделать безошибочную проверку кода  (SonaQube + Jankins).
+
 
 ## Локальное тестирование
 
@@ -220,12 +220,14 @@ https://docs.microsoft.com/ru-ru/azure/container-registry/container-registry-tut
 ```sh
 docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft.com/azure-cli  /bin/bash
 ```
+
 здесь --rm, чтобы Docker автоматически очищал контейнер и удалял файловую систему при выходе из контейнера
 
 Затем, чтобы можно было работать с image на хосте добавим в терминале нашего контейнера:
 ```sh
 apk --no-cache add docker
 ```
+
 
 Теперь можно пользоваться docker'ом из контейнера (н-р docker image - все образы на хосте)
 
@@ -329,5 +331,6 @@ mongodb://admin:pass@mongo:27017
 
 см здесь: https://github.com/GoodVine1971/test1/tree/master/task7/SonarQube
 
+## Логирование
 
-
+Используем https://github.com/stefanprodan/dockprom Grafana + Prometeus

@@ -19,7 +19,7 @@ stages {
     }
     stage('Get Dockerfile') {
         environment {
-        newUrl = '"ConnectionString": "mongodb://goodvine:hdfQbf6cHMqAkBhsEVkFbBfD676kCMQm4pmLBYqI0NRZeWtda10gHe3zBBcRhQsgt4Z8QAN5izGfjL9rbmOhdw==@goodvine.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@goodvine@", '
+        newUrl = ' "ConnectionString": "mongodb://admin:pass@mongo:27017",'
 		
         ConnectionString = newUrl.replace("/", "\\/")
         }
