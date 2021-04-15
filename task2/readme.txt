@@ -1,6 +1,3 @@
-К сожалению времени подробно разобраться не хватает...
-
-Ссылка на docker hub: https://hub.docker.com/repository/docker/goodvine/test
 
 task2/docker-compose.yaml использовался для п.2
 index.html  для вывода <Username> Exadel Sandbox 2021
