@@ -24,16 +24,16 @@ docker run --name jenkins-docker --rm --detach \
 
 Файл внутри содержит следующий код:
 
-version: '3.6'
-services:
- jenkins:
-  image: "jenkinsci/blueocean"
-  container_name: "jenkins-dock"
-  volumes:
-  - ./jenkins_home/:/var/jenkins_home
-  - /var/run/docker.sock:/var/run/docker.sock:rw
-  - /usr/bin/docker:/usr/bin/docker
-#  network_mode: host
+version: '3.6'  
+services:  
+ jenkins:  
+  image: "jenkinsci/blueocean"  
+  container_name: "jenkins-dock"  
+  volumes:  
+  - ./jenkins_home/:/var/jenkins_home  
+  - /var/run/docker.sock:/var/run/docker.sock:rw  
+  - /usr/bin/docker:/usr/bin/docker  
+#####  network_mode: host  
   ports:
   - 8080:8080
   restart: always
