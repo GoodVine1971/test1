@@ -2,7 +2,6 @@
 
 ![Блок-схема:](./images/task7.jpg) 
 
-
 Что сделано:
 
 1. Регистрация в Azure
@@ -83,7 +82,7 @@ docker build -t backend .
 docker run  -it --rm  --name back -p 8082:80  backend
 ```
 
-#  ASURE
+##  ASURE
 
 После регистрации создаем resourse group
 Далее идет установка ВМ, Virtual Network
