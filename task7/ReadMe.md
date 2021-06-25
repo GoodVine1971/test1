@@ -25,7 +25,7 @@
 1. Из-за кеширования поздно выяснилось, что при смене адресов на свои, продолжала использоваться база разработчиков.
 Требование обязательного ssl для коннекта с базой данных в azure выполнить не удалось, т.к. требует дополнительно настройки со стороны разработчиков приложения .Net
 Пришлось запустить Mongodb в контейнере.
-2. Сделать безошибочную проверку кода  (SonaQube + Jankins).
+2. Сделать безошибочную проверку кода  (SonaQube + Jenkins). Сделано локально.
 
 
 ## Локальное тестирование
@@ -228,7 +228,6 @@ docker run --rm -it  -v /var/run/docker.sock:/var/run/docker.sock  mcr.microsoft
 apk --no-cache add docker
 ```
 
-
 Теперь можно пользоваться docker'ом из контейнера (н-р docker image - все образы на хосте)
 
 В терминале вводим
@@ -280,6 +279,8 @@ az acr run --registry goodvine --cmd "purge --filter 'frontend:.*'  --untagged"
 az acr repository delete -n goodvine --image frontend:v12
 ```
 
+
+
 #### Задать credentials для Jenkins 
 
 Для автоматического входа в azure registry создадим службу:  service principal using Az CLI:
@@ -310,11 +311,12 @@ Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remot
 
 Добавление обратного proxy сервера:
 
-Скачиваем подготовленный docker-compose.yml ссо своего репозитория: svn export --force https://github.com/GoodVine1971/test1/trunk/task7/proxy 
+Скачиваем подготовленный docker-compose.yml со своего репозитория: svn export --force https://github.com/GoodVine1971/test1/trunk/task7/proxy 
 В нем запускаются frontend, backend, reverse proxy и mongodb. В nginx-proxy.conf указываются необходимые server_name (доменное имя, ip и localhost), в папке vhost - соответствующие по именам файлы, в которых иде proxyPass на наконтейнер back для адресов, содержащих /app. Таким образом из браузера вызывается backend с тем же доменным именем, что и frontend.
 
 ### База данных в docker
 
+Для примера user: admin, пароль: pass
 
 use admin
 switched to db admin
@@ -323,7 +325,7 @@ use ExadelBonusDb
 
 db.createUser({user: "admin", pwd: "pass", roles:[{role: "readWrite" , db:"ExadelBonusDb"}]});
 
-ConneсtString:
+Тогда ConneсtString:
 mongodb://admin:pass@mongo:27017
 
 
